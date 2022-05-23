@@ -1,2 +1,2 @@
 [workspace]
-members = ["rtlib/"]
+members = ["rtlib/", "ch01/"]
