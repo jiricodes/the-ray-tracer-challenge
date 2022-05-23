@@ -1,3 +1,5 @@
+use std::ops::{Add, Sub};
+
 #[derive(Debug, PartialEq)]
 pub struct Vec4 {
     pub x: f32,
@@ -37,6 +39,38 @@ impl Vec4 {
     }
 }
 
+impl<T> Add<T> for Vec4
+where
+    T: Into<Vec4>,
+{
+    type Output = Self;
+    fn add(self, rhs: T) -> Self::Output {
+        let rhs: Vec4 = rhs.into();
+        Vec4::new(
+            self.x + rhs.x,
+            self.y + rhs.y,
+            self.z + rhs.z,
+            self.w + rhs.w,
+        )
+    }
+}
+
+impl<T> Sub<T> for Vec4
+where
+    T: Into<Vec4>,
+{
+    type Output = Self;
+    fn sub(self, rhs: T) -> Self::Output {
+        let rhs: Vec4 = rhs.into();
+        Vec4::new(
+            self.x - rhs.x,
+            self.y - rhs.y,
+            self.z - rhs.z,
+            self.w - rhs.w,
+        )
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -57,5 +91,30 @@ mod tests {
         // minimum error check
         v.w += Vec4::_EPSILON;
         assert_ne!(v, p, "Minimum error check");
+    }
+
+    #[test]
+    fn adding() {
+        let a = Vec4::new(3.0, -2.0, 5.0, 1.0);
+        let b = Vec4::new(-2.0, 3.0, 1.0, 0.0);
+        assert_eq!(Vec4::new(1.0, 1.0, 6.0, 1.0), a + b);
+    }
+
+    #[test]
+    fn subbing() {
+        // Point - Point is vector
+        let a = Vec4::new_point(3.0, 2.0, 1.0);
+        let b = Vec4::new_point(5.0, 6.0, 7.0);
+        assert_eq!(Vec4::new_vec(-2.0, -4.0, -6.0), a - b);
+
+        // Point - vec is point
+        let a = Vec4::new_point(3.0, 2.0, 1.0);
+        let b = Vec4::new_vec(5.0, 6.0, 7.0);
+        assert_eq!(Vec4::new_point(-2.0, -4.0, -6.0), a - b);
+
+        // vec - vec is vec
+        let a = Vec4::new_vec(3.0, 2.0, 1.0);
+        let b = Vec4::new_vec(5.0, 6.0, 7.0);
+        assert_eq!(Vec4::new_vec(-2.0, -4.0, -6.0), a - b);
     }
 }
