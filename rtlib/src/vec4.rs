@@ -25,30 +25,15 @@ impl Vec4 {
         w: 1.0,
     };
     pub fn new(x: f32, y: f32, z: f32, w: f32) -> Self {
-        Self {
-            x: x,
-            y: y,
-            z: z,
-            w: w,
-        }
+        Self { x, y, z, w }
     }
 
     pub fn new_point(x: f32, y: f32, z: f32) -> Self {
-        Self {
-            x: x,
-            y: y,
-            z: z,
-            w: 1.0,
-        }
+        Self { x, y, z, w: 1.0 }
     }
 
     pub fn new_vec(x: f32, y: f32, z: f32) -> Self {
-        Self {
-            x: x,
-            y: y,
-            z: z,
-            w: 0.0,
-        }
+        Self { x, y, z, w: 0.0 }
     }
 
     pub fn magnitude(&self) -> f32 {
