@@ -1,4 +1,4 @@
-use rtlib::Vec4;
+use rtlib::prelude::*;
 
 struct Projectile {
     pub pos: Vec4,

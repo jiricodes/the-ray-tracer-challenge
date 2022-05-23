@@ -1,5 +1,8 @@
-mod vec4;
-pub use vec4::Vec4;
+pub mod prelude;
+
+pub mod color;
+pub mod vec4;
+
 #[cfg(test)]
 mod tests {
     #[test]
