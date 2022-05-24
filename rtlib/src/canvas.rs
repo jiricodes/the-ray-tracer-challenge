@@ -16,9 +16,11 @@ impl Canvas {
         }
     }
 
-    fn in_bounds(&self, x: u32, y: u32) {
-        if x >= self.width && y >= self.height {
-            panic!("Point out of canvas bounds");
+    fn in_bounds(&self, x: u32, y: u32) -> Result<(), &'static str> {
+        if x >= self.width || y >= self.height {
+            Err("Point out of canvas bounds")
+        } else {
+            Ok(())
         }
     }
 
@@ -26,16 +28,17 @@ impl Canvas {
         (y * self.width + x) as usize
     }
 
-    pub fn put_pixel(&mut self, x: u32, y: u32, color: Color) {
-        self.in_bounds(x, y);
+    pub fn put_pixel(&mut self, x: u32, y: u32, color: Color) -> Result<(), &'static str> {
+        self.in_bounds(x, y)?;
         let i = self.index(x, y);
         self.data[i] = color;
+        Ok(())
     }
 
-    pub fn get_pixel(&self, x: u32, y: u32) -> Color {
-        self.in_bounds(x, y);
+    pub fn get_pixel(&self, x: u32, y: u32) -> Result<Color, &'static str> {
+        self.in_bounds(x, y)?;
         let i = self.index(x, y);
-        self.data[i]
+        Ok(self.data[i])
     }
 
     pub fn clear(&mut self, color: Option<Color>) {
@@ -104,14 +107,15 @@ mod tests {
     #[test]
     fn put_pix() {
         let mut canvas = Canvas::new(10, 20);
-        canvas.put_pixel(5, 5, Color::WHITE);
+        let ret = canvas.put_pixel(5, 5, Color::WHITE);
+        assert!(ret.is_ok());
         assert_eq!(canvas.data[55], Color::WHITE);
     }
     #[test]
     fn get_pix() {
         let mut canvas = Canvas::new(10, 20);
         canvas.data[105] = Color::WHITE;
-        assert_eq!(canvas.get_pixel(5, 10), Color::WHITE);
+        assert_eq!(canvas.get_pixel(5, 10), Ok(Color::WHITE));
     }
 
     #[test]
@@ -129,9 +133,12 @@ mod tests {
         }
 
         canvas = Canvas::new(5, 3);
-        canvas.put_pixel(0, 0, Color::rgb(1.5, 0.0, 0.0));
-        canvas.put_pixel(2, 1, Color::rgb(0.0, 0.5, 0.0));
-        canvas.put_pixel(4, 2, Color::rgb(-0.5, 0.0, 1.0));
+        let ret = canvas.put_pixel(0, 0, Color::rgb(1.5, 0.0, 0.0));
+        assert!(ret.is_ok());
+        let ret = canvas.put_pixel(2, 1, Color::rgb(0.0, 0.5, 0.0));
+        assert!(ret.is_ok());
+        let ret = canvas.put_pixel(4, 2, Color::rgb(-0.5, 0.0, 1.0));
+        assert!(ret.is_ok());
         let ppm = canvas.into_ppm_string();
         for (i, line) in ppm.lines().enumerate() {
             match i {
@@ -154,6 +161,16 @@ mod tests {
         for line in ppm.lines() {
             assert!(line.len() <= 70);
         }
+
+        let mut canvas = Canvas::new(11, 2);
+        canvas.clear(Some(Color::rgb(1.0, 0.8, 0.6)));
+        let ret = canvas.put_pixel(1, 1, Color::BLACK);
+        assert!(ret.is_ok());
+        let ppm = canvas.into_ppm_string();
+        for line in ppm.lines() {
+            assert!(line.len() <= 70);
+        }
+        println!("{}", ppm);
     }
 
     #[test]
