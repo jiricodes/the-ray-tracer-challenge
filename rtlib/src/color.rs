@@ -48,6 +48,15 @@ impl Color {
             b: self.b * other.b,
         }
     }
+
+    pub fn as_ppm_string(&self) -> String {
+        format!(
+            "{} {} {}",
+            (self.r.clamp(0.0, 1.0) * 255.0) as u32,
+            (self.g.clamp(0.0, 1.0) * 255.0) as u32,
+            (self.b.clamp(0.0, 1.0) * 255.0) as u32
+        )
+    }
 }
 
 impl<T> Add<T> for Color

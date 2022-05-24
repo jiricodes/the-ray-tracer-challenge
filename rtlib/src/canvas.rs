@@ -37,6 +37,32 @@ impl Canvas {
         let i = self.index(x, y);
         self.data[i]
     }
+
+    pub fn into_ppm_string(&self) -> String {
+        let mut ret = String::new();
+        // Header
+        ret += "P3\n";
+        ret += &format!("{} {}\n", self.width, self.height);
+        ret += "255\n";
+        // Pixel data
+        // R G B per pixel in range 0-255, clamped otherwise
+        // max 70 chars per line
+        let mut line_len = 0;
+        for pixel in self.data.iter() {
+            let c = pixel.as_ppm_string();
+            if line_len + c.len() + 1 > 70 {
+                ret += &format!("\n{}", c);
+                line_len = c.len();
+            } else if line_len == 0 {
+                ret += &c;
+                line_len = c.len();
+            } else {
+                ret += &format!(" {}", c);
+                line_len += c.len() + 1;
+            }
+        }
+        ret
+    }
 }
 
 impl Default for Canvas {
@@ -71,5 +97,20 @@ mod tests {
         let mut canvas = Canvas::new(10, 20);
         canvas.data[105] = Color::WHITE;
         assert_eq!(canvas.get_pixel(5, 5), Color::WHITE);
+    }
+
+    #[test]
+    fn get_ppm() {
+        let mut canvas = Canvas::new(10, 20);
+        canvas.data[105] = Color::WHITE;
+        let ppm = canvas.into_ppm_string();
+        for (i, line) in ppm.lines().enumerate() {
+            match i {
+                0 => assert_eq!(line, "P3"),
+                1 => assert_eq!(line, "10 20"),
+                2 => assert_eq!(line, "255"),
+                _ => assert!(line.len() <= 70),
+            }
+        }
     }
 }
