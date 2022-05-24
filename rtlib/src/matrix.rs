@@ -10,12 +10,30 @@ impl Mat4 {
     pub const ZERO: Self = Self {
         data: [[0.0; 4]; 4],
     };
+    pub const IDENTITY: Self = Self {
+        data: [
+            [1.0, 0.0, 0.0, 0.0],
+            [0.0, 1.0, 0.0, 0.0],
+            [0.0, 0.0, 1.0, 0.0],
+            [0.0, 0.0, 0.0, 1.0],
+        ],
+    };
     pub fn get(&self, r: usize, c: usize) -> f32 {
         self.data[r][c]
     }
 
     pub fn set(&mut self, r: usize, c: usize, val: f32) {
         self.data[r][c] = val;
+    }
+
+    pub fn transpose(&self) -> Self {
+        let mut ret = Self::ZERO;
+        for r in 0..4 {
+            for c in 0..4 {
+                ret.data[c][r] = self.data[r][c];
+            }
+        }
+        ret
     }
 }
 
@@ -204,5 +222,28 @@ mod tests {
         let v = Vec4::new(1.0, 2.0, 3.0, 1.0);
         let exp = Vec4::new(18.0, 24.0, 33.0, 1.0);
         assert_eq!(exp, m * v);
+        assert_eq!(v, Mat4::IDENTITY * v);
+    }
+
+    #[test]
+    fn mat4_transpose() {
+        let m = Mat4 {
+            data: [
+                [0.0, 9.0, 3.0, 0.0],
+                [9.0, 8.0, 0.0, 8.0],
+                [1.0, 8.0, 5.0, 3.0],
+                [0.0, 0.0, 5.0, 8.0],
+            ],
+        };
+        let exp = Mat4 {
+            data: [
+                [0.0, 9.0, 1.0, 0.0],
+                [9.0, 8.0, 8.0, 0.0],
+                [3.0, 0.0, 5.0, 5.0],
+                [0.0, 8.0, 3.0, 8.0],
+            ],
+        };
+        assert_eq!(exp, m.transpose());
+        assert_eq!(Mat4::IDENTITY, Mat4::IDENTITY.transpose());
     }
 }
