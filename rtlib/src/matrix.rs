@@ -48,6 +48,26 @@ impl Mat4 {
         }
         ret
     }
+
+    pub fn minor(&self, r: usize, c: usize) -> f32 {
+        let sm = self.submatrix(r, c);
+        sm.determinant()
+    }
+
+    pub fn cofactor(&self, r: usize, c: usize) -> f32 {
+        if (r + c) % 2 == 1 {
+            self.minor(r, c) * -1.0
+        } else {
+            self.minor(r, c)
+        }
+    }
+
+    pub fn determinant(&self) -> f32 {
+        self.data[0][0] * self.cofactor(0, 0)
+            + self.data[0][1] * self.cofactor(0, 1)
+            + self.data[0][2] * self.cofactor(0, 2)
+            + self.data[0][3] * self.cofactor(0, 3)
+    }
 }
 
 impl From<[[f32; 4]; 4]> for Mat4 {
@@ -159,6 +179,12 @@ impl Mat3 {
         } else {
             self.minor(r, c)
         }
+    }
+
+    pub fn determinant(&self) -> f32 {
+        self.data[0][0] * self.cofactor(0, 0)
+            + self.data[0][1] * self.cofactor(0, 1)
+            + self.data[0][2] * self.cofactor(0, 2)
     }
 }
 
@@ -371,5 +397,33 @@ mod tests {
         assert_eq!(-12.0, m.cofactor(0, 0));
         assert_eq!(25.0, m.minor(1, 0));
         assert_eq!(-25.0, m.cofactor(1, 0));
+    }
+
+    #[test]
+    fn mat3_determinant() {
+        let m = Mat3 {
+            data: [[1.0, 2.0, 6.0], [-5.0, 8.0, -4.0], [2.0, 6.0, 4.0]],
+        };
+        assert_eq!(56.0, m.cofactor(0, 0));
+        assert_eq!(12.0, m.cofactor(0, 1));
+        assert_eq!(-46.0, m.cofactor(0, 2));
+        assert_eq!(-196.0, m.determinant());
+    }
+
+    #[test]
+    fn mat4_determinant() {
+        let m = Mat4 {
+            data: [
+                [-2.0, -8.0, 3.0, 5.0],
+                [-3.0, 1.0, 7.0, 3.0],
+                [1.0, 2.0, -9.0, 6.0],
+                [-6.0, 7.0, 7.0, -9.0],
+            ],
+        };
+        assert_eq!(690.0, m.cofactor(0, 0));
+        assert_eq!(447.0, m.cofactor(0, 1));
+        assert_eq!(210.0, m.cofactor(0, 2));
+        assert_eq!(51.0, m.cofactor(0, 3));
+        assert_eq!(-4071.0, m.determinant());
     }
 }
