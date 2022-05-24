@@ -29,7 +29,9 @@ fn tick_system(env: &Environment, projectile: &mut Projectile) {
     projectile.update();
     projectile.vel = projectile.vel + env.grav + env.wind;
 }
-fn main() {
+
+/// Projectile
+fn ch01() {
     let height: u32 = 500;
     let mut canvas = Canvas::new(900, height);
 
@@ -53,4 +55,55 @@ fn main() {
         tick_system(&env, &mut projectile);
     }
     println!("{}", canvas.into_ppm_string());
+}
+
+#[derive(Debug)]
+struct Clock {
+    points: Vec<Vec4>,
+}
+
+impl Clock {
+    fn new(origin: Vec4) -> Self {
+        let mut points = Vec::new();
+        let mut cp = Mat4::translation(0.0, 1.0, 0.0) * origin;
+        let r = Mat4::rotation_z(-PI / 6.0);
+        for _ in 0..12 {
+            points.push(cp);
+            cp = &r * cp;
+        }
+        Self { points }
+    }
+
+    fn scale(&mut self, s: f32) {
+        let scale = Mat4::scaling(s, s, s);
+        for p in self.points.iter_mut() {
+            let p1 = *p;
+            *p = &scale * p1;
+        }
+    }
+}
+
+/// Clock
+fn ch04() {
+    let height = 200;
+    let mut canvas = Canvas::new(200, height);
+    let color = Color::WHITE;
+
+    let origin = Vec4::new_point(0.0, 0.0, 0.0);
+
+    let mut clock = Clock::new(origin);
+    clock.scale(65.0);
+    // dbg!(&clock);
+
+    for p in clock.points.iter() {
+        let x = p.x.round() as u32 + 100;
+        let y = height - (p.y.round() as u32 + 100);
+        dbg!((x, y));
+        let _ = canvas.put_pixel(x, y, color);
+    }
+    // println!("{}", canvas.into_ppm_string());
+}
+
+fn main() {
+    ch04();
 }

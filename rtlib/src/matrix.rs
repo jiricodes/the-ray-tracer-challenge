@@ -125,6 +125,17 @@ impl Mat4 {
         ret.data[1][1] = r.cos();
         ret
     }
+
+    pub fn shearing(xy: f32, xz: f32, yx: f32, yz: f32, zx: f32, zy: f32) -> Self {
+        let mut ret = Self::IDENTITY;
+        ret.data[0][1] = xy;
+        ret.data[0][2] = xz;
+        ret.data[1][0] = yx;
+        ret.data[1][2] = yz;
+        ret.data[2][0] = zx;
+        ret.data[2][1] = zy;
+        ret
+    }
 }
 
 impl From<[[f32; 4]; 4]> for Mat4 {
@@ -302,6 +313,8 @@ impl From<[[f32; 3]; 3]> for Mat3 {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use std::f32::consts::PI;
+
     const EPSILON: f32 = 0.00001;
     #[test]
     fn new_mat4() {
@@ -709,7 +722,6 @@ mod tests {
 
     #[test]
     fn rotation() {
-        use std::f32::consts::PI;
         // x
         let p = Vec4::new_point(0.0, 1.0, 0.0);
         let half_quarter = Mat4::rotation_x(PI / 4.0);
@@ -719,7 +731,7 @@ mod tests {
             half_quarter * p
         );
         let exp = Vec4::new_point(0.0, 0.0, 1.0);
-        assert!(exp.e_eq(&(full_quarter * p)));
+        assert_eq!(exp, full_quarter * p);
 
         // y
         let p = Vec4::new_point(0.0, 0.0, 1.0);
@@ -730,7 +742,7 @@ mod tests {
             half_quarter * p
         );
         let exp = Vec4::new_point(1.0, 0.0, 0.0);
-        assert!(exp.e_eq(&(full_quarter * p)));
+        assert_eq!(exp, full_quarter * p);
 
         // z
         let p = Vec4::new_point(0.0, 1.0, 0.0);
@@ -741,6 +753,50 @@ mod tests {
             half_quarter * p
         );
         let exp = Vec4::new_point(-1.0, 0.0, 0.0);
-        assert!(exp.e_eq(&(full_quarter * p)));
+        assert_eq!(exp, full_quarter * p);
+    }
+
+    #[test]
+    fn shearing() {
+        let p = Vec4::new_point(2.0, 3.0, 4.0);
+
+        let t = Mat4::shearing(1.0, 0.0, 0.0, 0.0, 0.0, 0.0);
+        assert_eq!(Vec4::new_point(5.0, 3.0, 4.0), t * p);
+
+        let t = Mat4::shearing(0.0, 1.0, 0.0, 0.0, 0.0, 0.0);
+        assert_eq!(Vec4::new_point(6.0, 3.0, 4.0), t * p);
+
+        let t = Mat4::shearing(0.0, 0.0, 1.0, 0.0, 0.0, 0.0);
+        assert_eq!(Vec4::new_point(2.0, 5.0, 4.0), t * p);
+
+        let t = Mat4::shearing(0.0, 0.0, 0.0, 1.0, 0.0, 0.0);
+        assert_eq!(Vec4::new_point(2.0, 7.0, 4.0), t * p);
+
+        let t = Mat4::shearing(0.0, 0.0, 0.0, 0.0, 1.0, 0.0);
+        assert_eq!(Vec4::new_point(2.0, 3.0, 6.0), t * p);
+
+        let t = Mat4::shearing(0.0, 0.0, 0.0, 0.0, 0.0, 1.0);
+        assert_eq!(Vec4::new_point(2.0, 3.0, 7.0), t * p);
+    }
+
+    #[test]
+    fn combo_transform() {
+        let p = Vec4::new_point(1.0, 0.0, 1.0);
+        let rot = Mat4::rotation_x(PI / 2.0);
+        let scale = Mat4::scaling(5.0, 5.0, 5.0);
+        let t = Mat4::translation(10.0, 5.0, 7.0);
+
+        let p2 = &rot * p;
+        assert_eq!(p2, Vec4::new_point(1.0, -1.0, 0.0));
+
+        let p3 = &scale * p2;
+        assert_eq!(p3, Vec4::new_point(5.0, -5.0, 0.0));
+
+        let p4 = &t * p3;
+        assert_eq!(p4, Vec4::new_point(15.0, 0.0, 7.0));
+
+        let transform = t * scale * rot;
+        let p5 = transform * p;
+        assert_eq!(p5, Vec4::new_point(15.0, 0.0, 7.0));
     }
 }

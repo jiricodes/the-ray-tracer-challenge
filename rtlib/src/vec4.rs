@@ -1,7 +1,7 @@
 use std::cmp::PartialEq;
 use std::ops::{Add, Div, Mul, Neg, Sub};
 
-#[derive(Debug, PartialEq, Copy, Clone)]
+#[derive(Debug, Copy, Clone)]
 pub struct Vec4 {
     pub x: f32,
     pub y: f32,
@@ -69,19 +69,14 @@ impl Vec4 {
             w: 0.0,
         }
     }
-
-    pub fn e_eq(&self, other: &Self) -> bool {
-        let v = (self - other).abs();
-        v.x < Self::_EPSILON && v.y < Self::_EPSILON && v.z < Self::_EPSILON && v.w < Self::_EPSILON
-    }
 }
 
-// impl PartialEq<Vec4> for Vec4 {
-//     fn eq(&self, other: &Vec4) -> bool {
-//         let a = (*self - *other).abs();
-//         a.x < Vec4::_EPSILON && a.y < Vec4::_EPSILON && a.z < Vec4::_EPSILON && a.w < Vec4::_EPSILON
-//     }
-// }
+impl PartialEq<Vec4> for Vec4 {
+    fn eq(&self, other: &Vec4) -> bool {
+        let a = (self - other).abs();
+        a.x < Vec4::_EPSILON && a.y < Vec4::_EPSILON && a.z < Vec4::_EPSILON && a.w < Vec4::_EPSILON
+    }
+}
 
 impl<T> Add<T> for Vec4
 where
