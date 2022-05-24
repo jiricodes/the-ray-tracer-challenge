@@ -82,6 +82,49 @@ impl Mat4 {
         }
         Ok(ret)
     }
+
+    pub fn translation(x: f32, y: f32, z: f32) -> Self {
+        let mut ret = Self::IDENTITY;
+        ret.data[0][3] = x;
+        ret.data[1][3] = y;
+        ret.data[2][3] = z;
+        ret
+    }
+
+    pub fn scaling(x: f32, y: f32, z: f32) -> Self {
+        let mut ret = Self::IDENTITY;
+        ret.data[0][0] = x;
+        ret.data[1][1] = y;
+        ret.data[2][2] = z;
+        ret
+    }
+
+    pub fn rotation_x(r: f32) -> Self {
+        let mut ret = Self::IDENTITY;
+        ret.data[1][1] = r.cos();
+        ret.data[1][2] = -r.sin();
+        ret.data[2][1] = r.sin();
+        ret.data[2][2] = r.cos();
+        ret
+    }
+
+    pub fn rotation_y(r: f32) -> Self {
+        let mut ret = Self::IDENTITY;
+        ret.data[0][0] = r.cos();
+        ret.data[2][0] = -r.sin();
+        ret.data[0][2] = r.sin();
+        ret.data[2][2] = r.cos();
+        ret
+    }
+
+    pub fn rotation_z(r: f32) -> Self {
+        let mut ret = Self::IDENTITY;
+        ret.data[0][0] = r.cos();
+        ret.data[0][1] = -r.sin();
+        ret.data[1][0] = r.sin();
+        ret.data[1][1] = r.cos();
+        ret
+    }
 }
 
 impl From<[[f32; 4]; 4]> for Mat4 {
@@ -110,7 +153,55 @@ where
     }
 }
 
+impl Mul<&Mat4> for Mat4 {
+    type Output = Mat4;
+
+    fn mul(self, rhs: &Mat4) -> Self::Output {
+        let mut ret = Mat4::ZERO;
+        for r in 0..4 {
+            for c in 0..4 {
+                ret.data[r][c] = self.data[r][0] * rhs.data[0][c]
+                    + self.data[r][1] * rhs.data[1][c]
+                    + self.data[r][2] * rhs.data[2][c]
+                    + self.data[r][3] * rhs.data[3][c];
+            }
+        }
+        ret
+    }
+}
+
+impl Mul<&Mat4> for &Mat4 {
+    type Output = Mat4;
+
+    fn mul(self, rhs: &Mat4) -> Self::Output {
+        let mut ret = Mat4::ZERO;
+        for r in 0..4 {
+            for c in 0..4 {
+                ret.data[r][c] = self.data[r][0] * rhs.data[0][c]
+                    + self.data[r][1] * rhs.data[1][c]
+                    + self.data[r][2] * rhs.data[2][c]
+                    + self.data[r][3] * rhs.data[3][c];
+            }
+        }
+        ret
+    }
+}
+
 impl Mul<Vec4> for Mat4 {
+    type Output = Vec4;
+    fn mul(self, rhs: Vec4) -> Self::Output {
+        let mut ret: [[f32; 1]; 4] = [[0.0]; 4];
+        for r in 0..4 {
+            ret[r][0] = self.data[r][0] * rhs.x
+                + self.data[r][1] * rhs.y
+                + self.data[r][2] * rhs.z
+                + self.data[r][3] * rhs.w;
+        }
+        Vec4::new(ret[0][0], ret[1][0], ret[2][0], ret[3][0])
+    }
+}
+
+impl Mul<Vec4> for &Mat4 {
     type Output = Vec4;
     fn mul(self, rhs: Vec4) -> Self::Output {
         let mut ret: [[f32; 1]; 4] = [[0.0]; 4];
@@ -557,5 +648,99 @@ mod tests {
                 );
             }
         }
+
+        // Inversion proof
+        let a = Mat4 {
+            data: [
+                [3.0, -9.0, 7.0, 3.0],
+                [3.0, -8.0, 2.0, -9.0],
+                [-4.0, 4.0, 4.0, 1.0],
+                [-6.0, 5.0, -1.0, 1.0],
+            ],
+        };
+        let b = Mat4 {
+            data: [
+                [8.0, 2.0, 2.0, 2.0],
+                [3.0, -1.0, 7.0, 0.0],
+                [7.0, 0.0, 5.0, 4.0],
+                [6.0, -2.0, 0.0, 5.0],
+            ],
+        };
+        let c = &a * &b;
+        let b_inverse = b.inverse().unwrap();
+        let ret_a = c * b_inverse;
+        for r in 0..4 {
+            for c in 0..4 {
+                assert!(
+                    (a.data[r][c] - ret_a.data[r][c]).abs() < EPSILON,
+                    "Differs at [{}][{}]",
+                    r,
+                    c
+                );
+            }
+        }
+    }
+
+    #[test]
+    fn translation_mul() {
+        let transform = Mat4::translation(5.0, -3.0, 2.0);
+        let p = Vec4::new_point(-3.0, 4.0, 5.0);
+        let inverse_transform = transform.inverse().unwrap();
+        assert_eq!(Vec4::new_point(2.0, 1.0, 7.0), &transform * p);
+        assert_eq!(Vec4::new_point(-8.0, 7.0, 3.0), inverse_transform * p);
+        let v = Vec4::new_vec(-3.0, 4.0, 5.0);
+        assert_eq!(v, &transform * v);
+    }
+
+    #[test]
+    fn scaling() {
+        let t = Mat4::scaling(2.0, 3.0, 4.0);
+        let p = Vec4::new_point(-4.0, 6.0, 8.0);
+        assert_eq!(Vec4::new_point(-8.0, 18.0, 32.0), &t * p);
+        let v = Vec4::new_vec(-4.0, 6.0, 8.0);
+        assert_eq!(Vec4::new_vec(-8.0, 18.0, 32.0), &t * v);
+        assert_eq!(Vec4::new_vec(-2.0, 2.0, 2.0), t.inverse().unwrap() * v);
+
+        // Reflection - mirror x
+        let t = Mat4::scaling(-1.0, 1.0, 1.0);
+        let p = Vec4::new_point(2.0, 3.0, 4.0);
+        assert_eq!(Vec4::new_point(-2.0, 3.0, 4.0), &t * p);
+    }
+
+    #[test]
+    fn rotation() {
+        use std::f32::consts::PI;
+        // x
+        let p = Vec4::new_point(0.0, 1.0, 0.0);
+        let half_quarter = Mat4::rotation_x(PI / 4.0);
+        let full_quarter = Mat4::rotation_x(PI / 2.0);
+        assert_eq!(
+            Vec4::new_point(0.0, 2f32.sqrt() / 2.0, 2f32.sqrt() / 2.0),
+            half_quarter * p
+        );
+        let exp = Vec4::new_point(0.0, 0.0, 1.0);
+        assert!(exp.e_eq(&(full_quarter * p)));
+
+        // y
+        let p = Vec4::new_point(0.0, 0.0, 1.0);
+        let half_quarter = Mat4::rotation_y(PI / 4.0);
+        let full_quarter = Mat4::rotation_y(PI / 2.0);
+        assert_eq!(
+            Vec4::new_point(2f32.sqrt() / 2.0, 0.0, 2f32.sqrt() / 2.0),
+            half_quarter * p
+        );
+        let exp = Vec4::new_point(1.0, 0.0, 0.0);
+        assert!(exp.e_eq(&(full_quarter * p)));
+
+        // z
+        let p = Vec4::new_point(0.0, 1.0, 0.0);
+        let half_quarter = Mat4::rotation_z(PI / 4.0);
+        let full_quarter = Mat4::rotation_z(PI / 2.0);
+        assert_eq!(
+            Vec4::new_point(-2f32.sqrt() / 2.0, 2f32.sqrt() / 2.0, 0.0),
+            half_quarter * p
+        );
+        let exp = Vec4::new_point(-1.0, 0.0, 0.0);
+        assert!(exp.e_eq(&(full_quarter * p)));
     }
 }

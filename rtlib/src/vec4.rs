@@ -45,14 +45,14 @@ impl Vec4 {
         self / m
     }
 
-    // pub fn abs(&self) -> Self {
-    //     Self {
-    //         x: self.x.abs(),
-    //         y: self.x.abs(),
-    //         z: self.z.abs(),
-    //         w: self.w.abs(),
-    //     }
-    // }
+    fn abs(&self) -> Self {
+        Self {
+            x: self.x.abs(),
+            y: self.x.abs(),
+            z: self.z.abs(),
+            w: self.w.abs(),
+        }
+    }
 
     pub fn dot(&self, other: &Self) -> f32 {
         self.x * other.x + self.y * other.y + self.z * other.z + self.w * other.w
@@ -68,6 +68,11 @@ impl Vec4 {
             z: self.x * other.y - self.y * other.x,
             w: 0.0,
         }
+    }
+
+    pub fn e_eq(&self, other: &Self) -> bool {
+        let v = (self - other).abs();
+        v.x < Self::_EPSILON && v.y < Self::_EPSILON && v.z < Self::_EPSILON && v.w < Self::_EPSILON
     }
 }
 
@@ -133,6 +138,18 @@ where
     type Output = Vec4;
     fn sub(self, rhs: T) -> Self::Output {
         let rhs: Vec4 = rhs.into();
+        Vec4::new(
+            self.x - rhs.x,
+            self.y - rhs.y,
+            self.z - rhs.z,
+            self.w - rhs.w,
+        )
+    }
+}
+
+impl Sub<&Vec4> for &Vec4 {
+    type Output = Vec4;
+    fn sub(self, rhs: &Vec4) -> Self::Output {
         Vec4::new(
             self.x - rhs.x,
             self.y - rhs.y,
