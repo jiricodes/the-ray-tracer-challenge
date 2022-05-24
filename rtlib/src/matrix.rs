@@ -147,6 +147,19 @@ impl Mat3 {
         }
         ret
     }
+
+    pub fn minor(&self, r: usize, c: usize) -> f32 {
+        let sm = self.submatrix(r, c);
+        sm.determinant()
+    }
+
+    pub fn cofactor(&self, r: usize, c: usize) -> f32 {
+        if (r + c) % 2 == 1 {
+            self.minor(r, c) * -1.0
+        } else {
+            self.minor(r, c)
+        }
+    }
 }
 
 impl From<[[f32; 3]; 3]> for Mat3 {
@@ -337,5 +350,26 @@ mod tests {
         assert_eq!(exp_m2_11, m3.submatrix(1, 1));
         assert_eq!(exp_m2_10, m3.submatrix(1, 0));
         assert_eq!(exp_m2_21, m3.submatrix(2, 1));
+    }
+
+    #[test]
+    fn mat3_minor() {
+        let m = Mat3 {
+            data: [[3.0, 5.0, 0.0], [2.0, -1.0, -7.0], [6.0, -1.0, 5.0]],
+        };
+        let sm = m.submatrix(1, 0);
+        assert_eq!(25.0, sm.determinant());
+        assert_eq!(25.0, m.minor(1, 0));
+    }
+
+    #[test]
+    fn mat3_cofactor() {
+        let m = Mat3 {
+            data: [[3.0, 5.0, 0.0], [2.0, -1.0, -7.0], [6.0, -1.0, 5.0]],
+        };
+        assert_eq!(-12.0, m.minor(0, 0));
+        assert_eq!(-12.0, m.cofactor(0, 0));
+        assert_eq!(25.0, m.minor(1, 0));
+        assert_eq!(-25.0, m.cofactor(1, 0));
     }
 }
