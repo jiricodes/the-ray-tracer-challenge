@@ -35,6 +35,19 @@ impl Mat4 {
         }
         ret
     }
+
+    pub fn submatrix(&self, r: usize, c: usize) -> Mat3 {
+        let mut ret = Mat3::ZERO;
+
+        for row in 0..3 {
+            let rc = if row < r { 0 } else { 1 };
+            for col in 0..3 {
+                let cc = if col < c { 0 } else { 1 };
+                ret.data[row][col] = self.data[row + rc][col + cc];
+            }
+        }
+        ret
+    }
 }
 
 impl From<[[f32; 4]; 4]> for Mat4 {
@@ -83,12 +96,19 @@ pub struct Mat2 {
 }
 
 impl Mat2 {
+    pub const ZERO: Self = Self {
+        data: [[0.0; 2]; 2],
+    };
     pub fn get(&self, r: usize, c: usize) -> f32 {
         self.data[r][c]
     }
 
     pub fn set(&mut self, r: usize, c: usize, val: f32) {
         self.data[r][c] = val;
+    }
+
+    pub fn determinant(&self) -> f32 {
+        self.data[0][0] * self.data[1][1] - self.data[0][1] * self.data[1][0]
     }
 }
 
@@ -104,12 +124,28 @@ pub struct Mat3 {
 }
 
 impl Mat3 {
+    pub const ZERO: Self = Self {
+        data: [[0.0; 3]; 3],
+    };
     pub fn get(&self, r: usize, c: usize) -> f32 {
         self.data[r][c]
     }
 
     pub fn set(&mut self, r: usize, c: usize, val: f32) {
         self.data[r][c] = val;
+    }
+
+    pub fn submatrix(&self, r: usize, c: usize) -> Mat2 {
+        let mut ret = Mat2::ZERO;
+
+        for row in 0..2 {
+            let rc = if row < r { 0 } else { 1 };
+            for col in 0..2 {
+                let cc = if col < c { 0 } else { 1 };
+                ret.data[row][col] = self.data[row + rc][col + cc];
+            }
+        }
+        ret
     }
 }
 
@@ -245,5 +281,61 @@ mod tests {
         };
         assert_eq!(exp, m.transpose());
         assert_eq!(Mat4::IDENTITY, Mat4::IDENTITY.transpose());
+    }
+
+    #[test]
+    fn mat2_determinant() {
+        let m = Mat2 {
+            data: [[1.0, 5.0], [-3.0, 2.0]],
+        };
+        assert_eq!(17.0, m.determinant())
+    }
+
+    #[test]
+    fn submatrix() {
+        let m4 = Mat4 {
+            data: [
+                [-6.0, 1.0, 1.0, 6.0],
+                [-8.0, 5.0, 8.0, 6.0],
+                [-1.0, 0.0, 8.0, 2.0],
+                [-7.0, 1.0, -1.0, 1.0],
+            ],
+        };
+        let exp_m3_21 = Mat3 {
+            data: [[-6.0, 1.0, 6.0], [-8.0, 8.0, 6.0], [-7.0, -1.0, 1.0]],
+        };
+        let exp_m3_00 = Mat3 {
+            data: [[5.0, 8.0, 6.0], [0.0, 8.0, 2.0], [1.0, -1.0, 1.0]],
+        };
+        let exp_m3_33 = Mat3 {
+            data: [[-6.0, 1.0, 1.0], [-8.0, 5.0, 8.0], [-1.0, 0.0, 8.0]],
+        };
+        assert_eq!(exp_m3_00, m4.submatrix(0, 0));
+        assert_eq!(exp_m3_21, m4.submatrix(2, 1));
+        assert_eq!(exp_m3_33, m4.submatrix(3, 3));
+
+        let m3 = Mat3 {
+            data: [[1.0, 5.0, 0.0], [-3.0, 2.0, 7.0], [0.0, 6.0, -3.0]],
+        };
+        let exp_m2_00 = Mat2 {
+            data: [[2.0, 7.0], [6.0, -3.0]],
+        };
+        let exp_m2_02 = Mat2 {
+            data: [[-3.0, 2.0], [0.0, 6.0]],
+        };
+        let exp_m2_11 = Mat2 {
+            data: [[1.0, 0.0], [0.0, -3.0]],
+        };
+        let exp_m2_10 = Mat2 {
+            data: [[5.0, 0.0], [6.0, -3.0]],
+        };
+        let exp_m2_21 = Mat2 {
+            data: [[1.0, 0.0], [-3.0, 7.0]],
+        };
+        assert_eq!(exp_m2_00, m3.submatrix(0, 0));
+        assert_eq!(exp_m2_02, m3.submatrix(0, 2));
+        assert_eq!(exp_m2_11, m3.submatrix(1, 1));
+        assert_eq!(exp_m2_10, m3.submatrix(1, 0));
+        assert_eq!(exp_m2_21, m3.submatrix(2, 1));
     }
 }
