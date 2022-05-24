@@ -52,9 +52,9 @@ impl Color {
     pub fn as_ppm_string(&self) -> String {
         format!(
             "{} {} {}",
-            (self.r.clamp(0.0, 1.0) * 255.0) as u32,
-            (self.g.clamp(0.0, 1.0) * 255.0) as u32,
-            (self.b.clamp(0.0, 1.0) * 255.0) as u32
+            (self.r.clamp(0.0, 1.0) * 255.0).round() as u32,
+            (self.g.clamp(0.0, 1.0) * 255.0).round() as u32,
+            (self.b.clamp(0.0, 1.0) * 255.0).round() as u32
         )
     }
 }

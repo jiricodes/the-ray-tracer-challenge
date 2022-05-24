@@ -23,7 +23,7 @@ impl Canvas {
     }
 
     fn index(&self, x: u32, y: u32) -> usize {
-        (y * self.height + x) as usize
+        (y * self.width + x) as usize
     }
 
     pub fn put_pixel(&mut self, x: u32, y: u32, color: Color) {
@@ -38,6 +38,17 @@ impl Canvas {
         self.data[i]
     }
 
+    pub fn clear(&mut self, color: Option<Color>) {
+        let c = if color.is_none() {
+            Color::BLACK
+        } else {
+            color.unwrap()
+        };
+        for d in self.data.iter_mut() {
+            *d = c;
+        }
+    }
+
     pub fn into_ppm_string(&self) -> String {
         let mut ret = String::new();
         // Header
@@ -48,7 +59,7 @@ impl Canvas {
         // R G B per pixel in range 0-255, clamped otherwise
         // max 70 chars per line
         let mut line_len = 0;
-        for pixel in self.data.iter() {
+        for (i, pixel) in self.data.iter().enumerate() {
             let c = pixel.as_ppm_string();
             if line_len + c.len() + 1 > 70 {
                 ret += &format!("\n{}", c);
@@ -59,6 +70,10 @@ impl Canvas {
             } else {
                 ret += &format!(" {}", c);
                 line_len += c.len() + 1;
+            }
+            if i as u32 % self.width == self.width - 1 {
+                ret += "\n";
+                line_len = 0;
             }
         }
         ret
@@ -90,13 +105,13 @@ mod tests {
     fn put_pix() {
         let mut canvas = Canvas::new(10, 20);
         canvas.put_pixel(5, 5, Color::WHITE);
-        assert_eq!(canvas.data[105], Color::WHITE);
+        assert_eq!(canvas.data[55], Color::WHITE);
     }
     #[test]
     fn get_pix() {
         let mut canvas = Canvas::new(10, 20);
         canvas.data[105] = Color::WHITE;
-        assert_eq!(canvas.get_pixel(5, 5), Color::WHITE);
+        assert_eq!(canvas.get_pixel(5, 10), Color::WHITE);
     }
 
     #[test]
@@ -112,5 +127,40 @@ mod tests {
                 _ => assert!(line.len() <= 70),
             }
         }
+
+        canvas = Canvas::new(5, 3);
+        canvas.put_pixel(0, 0, Color::rgb(1.5, 0.0, 0.0));
+        canvas.put_pixel(2, 1, Color::rgb(0.0, 0.5, 0.0));
+        canvas.put_pixel(4, 2, Color::rgb(-0.5, 0.0, 1.0));
+        let ppm = canvas.into_ppm_string();
+        for (i, line) in ppm.lines().enumerate() {
+            match i {
+                0 => assert_eq!(line, "P3"),
+                1 => assert_eq!(line, "5 3"),
+                2 => assert_eq!(line, "255"),
+                3 => assert_eq!(line, "255 0 0 0 0 0 0 0 0 0 0 0 0 0 0"),
+                4 => assert_eq!(line, "0 0 0 0 0 0 0 128 0 0 0 0 0 0 0"),
+                5 => assert_eq!(line, "0 0 0 0 0 0 0 0 0 0 0 0 0 0 255"),
+                _ => panic!("Unexpected number of lines {}", i),
+            }
+        }
+    }
+
+    #[test]
+    fn get_ppm_long_lines() {
+        let mut canvas = Canvas::new(10, 2);
+        canvas.clear(Some(Color::rgb(1.0, 0.8, 0.6)));
+        let ppm = canvas.into_ppm_string();
+        for line in ppm.lines() {
+            assert!(line.len() <= 70);
+        }
+    }
+
+    #[test]
+    fn get_ppm_ends_with_nl() {
+        let mut canvas = Canvas::new(5, 3);
+        canvas.clear(Some(Color::rgb(1.0, 0.8, 0.6)));
+        let ppm = canvas.into_ppm_string();
+        assert_eq!(ppm.chars().last().unwrap(), '\n');
     }
 }
