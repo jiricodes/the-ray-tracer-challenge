@@ -142,12 +142,9 @@ where
     }
 }
 
-impl<T> Mul<T> for Vec4
-where
-    T: Into<f32>,
-{
+impl Mul<f32> for Vec4 {
     type Output = Vec4;
-    fn mul(self, rhs: T) -> Self::Output {
+    fn mul(self, rhs: f32) -> Self::Output {
         let m: f32 = rhs.into();
         Self::Output {
             x: self.x * m,
