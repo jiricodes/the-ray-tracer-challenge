@@ -4,7 +4,7 @@ use std::sync::atomic::{AtomicUsize, Ordering};
 
 static SPHERE_COUNTER: AtomicUsize = AtomicUsize::new(0);
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub struct Sphere {
     uid: usize,
     // pub center: Vec4,
