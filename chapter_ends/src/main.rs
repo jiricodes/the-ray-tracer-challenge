@@ -93,15 +93,14 @@ fn ch04() {
 
     let mut clock = Clock::new(origin);
     clock.scale(65.0);
-    // dbg!(&clock);
 
     for p in clock.points.iter() {
-        let x = p.x.round() as u32 + 100;
-        let y = height - (p.y.round() as u32 + 100);
-        dbg!((x, y));
+        let x = (p.x + 100.0).round() as u32;
+        let y = height - (p.y + 100.0).round() as u32;
+        // dbg!((x, y));
         let _ = canvas.put_pixel(x, y, color);
     }
-    // println!("{}", canvas.into_ppm_string());
+    println!("{}", canvas.into_ppm_string());
 }
 
 fn main() {
