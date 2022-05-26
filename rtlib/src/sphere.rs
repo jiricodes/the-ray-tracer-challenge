@@ -1,10 +1,11 @@
+use crate::intersection::{Intersection, Intersections};
 use crate::ray::Ray;
 use crate::vec4::Vec4;
 use std::sync::atomic::{AtomicUsize, Ordering};
 
 static SPHERE_COUNTER: AtomicUsize = AtomicUsize::new(0);
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Eq)]
 pub struct Sphere {
     uid: usize,
     // pub center: Vec4,
@@ -20,18 +21,20 @@ impl Sphere {
         }
     }
 
-    pub fn intersect(&self, ray: &Ray) -> Vec<f32> {
+    pub fn intersect<'a>(&'a self, ray: &Ray) -> Intersections {
         let sphere_to_ray = ray.origin - Vec4::POINT_ZERO;
         let a = ray.direction.dot(&ray.direction);
         let b = 2.0 * ray.direction.dot(&sphere_to_ray);
         let c = sphere_to_ray.dot(&sphere_to_ray) - 1.0;
         let discriminant = b * b - 4.0 * a * c;
-        let mut ret: Vec<f32> = Vec::new();
+        let mut ret: Intersections = Intersections::new();
         if discriminant < 0.0 {
             return ret;
         }
-        ret.push((-b - discriminant.sqrt()) / (2.0 * a));
-        ret.push((-b + discriminant.sqrt()) / (2.0 * a));
+        let i = Intersection::new(&self, (-b - discriminant.sqrt()) / (2.0 * a));
+        ret.push(i);
+        let i = Intersection::new(&self, (-b + discriminant.sqrt()) / (2.0 * a));
+        ret.push(i);
         ret
     }
 }
@@ -57,15 +60,15 @@ mod tests {
         );
         let xs = s.intersect(&r);
         assert_eq!(xs.len(), 2);
-        assert_eq!(xs[0], 4.0);
-        assert_eq!(xs[1], 6.0);
+        assert_eq!(xs.intersections[0].t, 4.0);
+        assert_eq!(xs.intersections[1].t, 6.0);
 
         // tangent
         r.origin = Vec4::new_point(0.0, 1.0, -5.0);
         let xs = s.intersect(&r);
         assert_eq!(xs.len(), 2);
-        assert_eq!(xs[0], 5.0);
-        assert_eq!(xs[1], 5.0);
+        assert_eq!(xs.intersections[0].t, 5.0);
+        assert_eq!(xs.intersections[1].t, 5.0);
 
         // no intersection
         r.origin = Vec4::new_point(0.0, 2.0, -5.0);
@@ -76,14 +79,14 @@ mod tests {
         r.origin = Vec4::new_point(0.0, 0.0, 0.0);
         let xs = s.intersect(&r);
         assert_eq!(xs.len(), 2);
-        assert_eq!(xs[0], -1.0);
-        assert_eq!(xs[1], 1.0);
+        assert_eq!(xs.intersections[0].t, -1.0);
+        assert_eq!(xs.intersections[1].t, 1.0);
 
         // ray origin "behind" the sphere
         r.origin = Vec4::new_point(0.0, 0.0, 5.0);
         let xs = s.intersect(&r);
         assert_eq!(xs.len(), 2);
-        assert_eq!(xs[0], -6.0);
-        assert_eq!(xs[1], -4.0);
+        assert_eq!(xs.intersections[0].t, -6.0);
+        assert_eq!(xs.intersections[1].t, -4.0);
     }
 }

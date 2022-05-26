@@ -2,6 +2,7 @@ pub mod prelude;
 
 pub mod canvas;
 pub mod color;
+pub mod epsilon;
 pub mod intersection;
 pub mod matrix;
 pub mod ray;
