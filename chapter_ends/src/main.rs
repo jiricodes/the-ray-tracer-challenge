@@ -1,3 +1,4 @@
+#![allow(dead_code)]
 use rtlib::prelude::*;
 
 struct Projectile {
@@ -103,6 +104,37 @@ fn ch04() {
     println!("{}", canvas.into_ppm_string());
 }
 
+fn ch05() {
+    let height = 200;
+    let width = 200;
+    let mut canvas = Canvas::new(width, height);
+    let color = Color::WHITE;
+
+    let mut s = Sphere::new();
+    s.transform = Mat4::scaling(40.0, 20.0, 50.0) * Mat4::shearing(1.0, 0.0, 0.0, 0.0, 0.0, 0.0);
+
+    let direction = Vec4::new_vec(0.0, 0.0, 1.0);
+    for y in 0..height {
+        for x in 0..width {
+            let r = Ray::new(
+                &Vec4::new_point(
+                    x as f32 - (width as f32 / 2.0),
+                    y as f32 - (height as f32 / 2.0),
+                    -1000.0,
+                ),
+                &direction,
+            );
+            let mut ixs = s.intersect(&r);
+            ixs.sort();
+            let hit = ixs.hit();
+            if hit.is_some() {
+                let _ = canvas.put_pixel(x, y, color);
+            }
+        }
+    }
+    println!("{}", canvas.into_ppm_string());
+}
+
 fn main() {
-    ch04();
+    ch05();
 }
