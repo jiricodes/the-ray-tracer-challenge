@@ -1,3 +1,4 @@
+use crate::matrix::Mat4;
 use crate::vec4::Vec4;
 
 pub struct Ray {
@@ -15,6 +16,12 @@ impl Ray {
 
     pub fn position(&self, t: f32) -> Vec4 {
         self.origin + (self.direction * t)
+    }
+
+    pub fn transform(&self, m: &Mat4) -> Self {
+        let origin = m * self.origin;
+        let direction = m * self.direction;
+        Self { origin, direction }
     }
 }
 
@@ -40,5 +47,22 @@ mod tests {
         assert_eq!(Vec4::new_point(3.0, 3.0, 4.0), r.position(1.0));
         assert_eq!(Vec4::new_point(1.0, 3.0, 4.0), r.position(-1.0));
         assert_eq!(Vec4::new_point(4.5, 3.0, 4.0), r.position(2.5));
+    }
+
+    #[test]
+    fn transform() {
+        let r = Ray::new(
+            &Vec4::new_point(1.0, 2.0, 3.0),
+            &Vec4::new_vec(0.0, 1.0, 0.0),
+        );
+        let transl = Mat4::translation(3.0, 4.0, 5.0);
+        let ret = r.transform(&transl);
+        assert_eq!(Vec4::new_point(4.0, 6.0, 8.0), ret.origin);
+        assert_eq!(Vec4::new_vec(0.0, 1.0, 0.0), ret.direction);
+
+        let scale = Mat4::scaling(2.0, 3.0, 4.0);
+        let ret = r.transform(&scale);
+        assert_eq!(Vec4::new_point(2.0, 6.0, 12.0), ret.origin);
+        assert_eq!(Vec4::new_vec(0.0, 3.0, 0.0), ret.direction);
     }
 }
