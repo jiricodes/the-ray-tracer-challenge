@@ -46,11 +46,26 @@ impl Sphere {
     pub fn transform(&mut self, m: &Mat4) {
         self.transform = m * self.transform;
     }
+
+    /// Assumes p on the surface
+    pub fn normal_at(&self, p: &Vec4) -> Vec4 {
+        let it = self
+            .transform
+            .inverse()
+            .expect("Object transform matrix is not invertible");
+        let op = it * *p;
+        let on = (op - Vec4::POINT_ZERO).normalize();
+        let mut normal = it.transpose() * on;
+        normal.w = 0.0;
+        normal.normalize()
+    }
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
+    use std::f32::consts::PI;
+
     #[test]
     fn basic() {
         let a = Sphere::new();
@@ -121,5 +136,41 @@ mod tests {
         assert_eq!(t, s.transform);
         s.transform = t;
         assert_eq!(t, s.transform);
+    }
+
+    #[test]
+    fn normal_at() {
+        let s = Sphere::new();
+        let p = Vec4::new_point(1.0, 0.0, 0.0);
+        let exp = Vec4::new_vec(1.0, 0.0, 0.0);
+        assert_eq!(exp, s.normal_at(&p));
+
+        let p = Vec4::new_point(0.0, 1.0, 0.0);
+        let exp = Vec4::new_vec(0.0, 1.0, 0.0);
+        assert_eq!(exp, s.normal_at(&p));
+
+        let p = Vec4::new_point(0.0, 0.0, 1.0);
+        let exp = Vec4::new_vec(0.0, 0.0, 1.0);
+        assert_eq!(exp, s.normal_at(&p));
+
+        let p = Vec4::new_point(3f32.sqrt() / 3.0, 3f32.sqrt() / 3.0, 3f32.sqrt() / 3.0);
+        let exp = Vec4::new_vec(3f32.sqrt() / 3.0, 3f32.sqrt() / 3.0, 3f32.sqrt() / 3.0);
+        let n = s.normal_at(&p);
+        assert_eq!(exp, n);
+        assert_eq!(n, n.normalize());
+
+        let mut s = Sphere::new();
+
+        s.transform = Mat4::translation(0.0, 1.0, 0.0);
+        let p = Vec4::new_point(0.0, 1.70711, -0.70711);
+        let exp = Vec4::new_vec(0.0, 0.70711, -0.70711);
+        let n = s.normal_at(&p);
+        assert_eq!(exp, n);
+
+        s.transform = Mat4::scaling(1.0, 0.5, 1.0) * Mat4::rotation_z(PI / 5.0);
+        let p = Vec4::new_point(0.0, 2f32.sqrt() / 2.0, -2f32.sqrt() / 2.0);
+        let exp = Vec4::new_vec(0.0, 0.97014, -0.24254);
+        let n = s.normal_at(&p);
+        assert_eq!(exp, n);
     }
 }
