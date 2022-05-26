@@ -21,6 +21,12 @@ impl Sphere {
     }
 
     pub fn intersect<'a>(&'a self, ray: &Ray) -> Intersections {
+        let ray = ray.transform(
+            &self
+                .transform
+                .inverse()
+                .expect("Object transform matrix is not invertible"),
+        );
         let sphere_to_ray = ray.origin - Vec4::POINT_ZERO;
         let a = ray.direction.dot(&ray.direction);
         let b = 2.0 * ray.direction.dot(&sphere_to_ray);
@@ -55,7 +61,7 @@ mod tests {
 
     #[test]
     fn ray_intersect() {
-        let s = Sphere::new();
+        let mut s = Sphere::new();
 
         // 2 points of intersection
         let mut r = Ray::new(
@@ -92,6 +98,19 @@ mod tests {
         assert_eq!(xs.len(), 2);
         assert_eq!(xs.intersections[0].t, -6.0);
         assert_eq!(xs.intersections[1].t, -4.0);
+
+        // After transformation
+        s.transform = Mat4::scaling(2.0, 2.0, 2.0);
+        r.origin = Vec4::new_point(0.0, 0.0, -5.0);
+        r.direction = Vec4::new_vec(0.0, 0.0, 1.0);
+        let xs = s.intersect(&r);
+        assert_eq!(xs.len(), 2);
+        assert_eq!(xs.intersections[0].t, 3.0);
+        assert_eq!(xs.intersections[1].t, 7.0);
+
+        s.transform = Mat4::translation(5.0, 0.0, 0.0);
+        let xs = s.intersect(&r);
+        assert_eq!(xs.len(), 0);
     }
 
     #[test]
