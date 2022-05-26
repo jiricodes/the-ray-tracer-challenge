@@ -69,6 +69,10 @@ impl Vec4 {
             w: 0.0,
         }
     }
+
+    pub fn reflect(&self, normal: &Vec4) -> Vec4 {
+        *self - *normal * 2.0 * self.dot(normal)
+    }
 }
 
 impl PartialEq<Vec4> for Vec4 {
@@ -345,5 +349,16 @@ mod tests {
         let b = Vec4::new_vec(2.0, 3.0, 4.0);
         assert_eq!(Vec4::new_vec(-1.0, 2.0, -1.0), a.cross(&b));
         assert_eq!(Vec4::new_vec(1.0, -2.0, 1.0), b.cross(&a));
+    }
+
+    #[test]
+    fn reflect() {
+        let v = Vec4::new_vec(1.0, -1.0, 0.0);
+        let n = Vec4::new_vec(0.0, 1.0, 0.0);
+        assert_eq!(Vec4::new_vec(1.0, 1.0, 0.0), v.reflect(&n));
+
+        let v = Vec4::new_vec(0.0, -1.0, 0.0);
+        let n = Vec4::new_vec(2f32.sqrt() / 2.0, 2f32.sqrt() / 2.0, 0.0);
+        assert_eq!(Vec4::new_vec(1.0, 0.0, 0.0), v.reflect(&n));
     }
 }
