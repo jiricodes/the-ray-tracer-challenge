@@ -1,23 +1,22 @@
 use crate::intersection::{Intersection, Intersections};
+use crate::matrix::Mat4;
 use crate::ray::Ray;
 use crate::vec4::Vec4;
 use std::sync::atomic::{AtomicUsize, Ordering};
 
 static SPHERE_COUNTER: AtomicUsize = AtomicUsize::new(0);
 
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Debug, PartialEq)]
 pub struct Sphere {
     uid: usize,
-    // pub center: Vec4,
-    // pub radius: f32,
+    transform: Mat4,
 }
 
 impl Sphere {
     pub fn new() -> Self {
         Self {
             uid: SPHERE_COUNTER.fetch_add(1, Ordering::SeqCst),
-            // center: Vec4::POINT_ZERO,
-            // radius: 1.0,
+            transform: Mat4::IDENTITY,
         }
     }
 
@@ -47,6 +46,7 @@ mod tests {
         let a = Sphere::new();
         let b = Sphere::new();
         assert_ne!(a.uid, b.uid);
+        assert_eq!(a.transform, Mat4::IDENTITY);
     }
 
     #[test]
@@ -89,4 +89,7 @@ mod tests {
         assert_eq!(xs.intersections[0].t, -6.0);
         assert_eq!(xs.intersections[1].t, -4.0);
     }
+
+    #[test]
+    fn transform() {}
 }
