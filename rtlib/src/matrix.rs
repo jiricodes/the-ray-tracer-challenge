@@ -1,7 +1,7 @@
 use crate::vec4::Vec4;
 use std::ops::Mul;
 
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, Copy, PartialEq)]
 pub struct Mat4 {
     pub data: [[f32; 4]; 4],
 }
@@ -185,6 +185,23 @@ impl Mul<&Mat4> for &Mat4 {
     type Output = Mat4;
 
     fn mul(self, rhs: &Mat4) -> Self::Output {
+        let mut ret = Mat4::ZERO;
+        for r in 0..4 {
+            for c in 0..4 {
+                ret.data[r][c] = self.data[r][0] * rhs.data[0][c]
+                    + self.data[r][1] * rhs.data[1][c]
+                    + self.data[r][2] * rhs.data[2][c]
+                    + self.data[r][3] * rhs.data[3][c];
+            }
+        }
+        ret
+    }
+}
+
+impl Mul<Mat4> for &Mat4 {
+    type Output = Mat4;
+
+    fn mul(self, rhs: Mat4) -> Self::Output {
         let mut ret = Mat4::ZERO;
         for r in 0..4 {
             for c in 0..4 {

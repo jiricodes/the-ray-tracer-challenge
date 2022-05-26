@@ -9,7 +9,7 @@ static SPHERE_COUNTER: AtomicUsize = AtomicUsize::new(0);
 #[derive(Debug, PartialEq)]
 pub struct Sphere {
     uid: usize,
-    transform: Mat4,
+    pub transform: Mat4,
 }
 
 impl Sphere {
@@ -35,6 +35,10 @@ impl Sphere {
         let i = Intersection::new(&self, (-b + discriminant.sqrt()) / (2.0 * a));
         ret.push(i);
         ret
+    }
+
+    pub fn transform(&mut self, m: &Mat4) {
+        self.transform = m * self.transform;
     }
 }
 
@@ -91,5 +95,12 @@ mod tests {
     }
 
     #[test]
-    fn transform() {}
+    fn transform() {
+        let mut s = Sphere::new();
+        let t = Mat4::translation(2.0, 3.0, 4.0);
+        s.transform(&t);
+        assert_eq!(t, s.transform);
+        s.transform = t;
+        assert_eq!(t, s.transform);
+    }
 }
