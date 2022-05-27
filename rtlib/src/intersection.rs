@@ -1,7 +1,6 @@
-// use crate::epsilon::EPSILON;
+use crate::ray::Ray;
 use crate::sphere::Sphere;
-
-// use std::cmp::{Eq, Ord, Ordering, PartialEq, PartialOrd};
+use crate::vec4::Vec4;
 
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub struct Intersection<'a> {
@@ -14,26 +13,6 @@ impl<'a> Intersection<'a> {
         Self { object, t }
     }
 }
-
-// impl PartialEq for Intersection<'_> {
-//     fn eq(&self, other: &Intersection) -> bool {
-//         (self.t - other.t).abs() < EPSILON
-//     }
-// }
-
-// impl Eq for Intersection<'_> {}
-
-// impl PartialOrd for Intersection<'_> {
-//     fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
-//         self.t.partial_cmp(&other.t)
-//     }
-// }
-
-// impl Ord for Intersection<'_> {
-//     fn cmp(&self, other: &Self) -> Ordering {
-//         self.partial_cmp(other)
-//     }
-// }
 
 #[derive(Debug, Clone)]
 pub struct Intersections<'a> {
@@ -71,6 +50,39 @@ impl<'a> Intersections<'a> {
 
     pub fn append(&mut self, other: &mut Self) {
         self.intersections.append(&mut other.intersections);
+    }
+}
+
+/// Collection of precomputed values of an intersection.
+#[derive(Debug)]
+pub struct IntersectionComps<'a> {
+    t: f32,
+    object: &'a Sphere,
+    point: Vec4,
+    eye_vec: Vec4,
+    normal: Vec4,
+    inside: bool,
+}
+
+impl<'a> IntersectionComps<'a> {
+    pub fn new(i: &Intersection<'a>, r: &Ray) -> Self {
+        let p = r.position(i.t);
+        let mut n = i.object.normal_at(&p);
+        let e = -r.direction;
+        let mut inside = false;
+        if n.dot(&e) < 0.0 {
+            inside = true;
+            n = -n;
+        }
+
+        Self {
+            t: i.t,
+            object: i.object,
+            point: p,
+            eye_vec: e,
+            normal: n,
+            inside,
+        }
     }
 }
 
@@ -149,5 +161,35 @@ mod tests {
         let i = inters.hit();
         assert_eq!(Some(&i4), i);
         inters.clear();
+    }
+
+    #[test]
+    fn precomputed() {
+        let r = Ray::new(
+            &Vec4::new_point(0.0, 0.0, -5.0),
+            &Vec4::new_vec(0.0, 0.0, 1.0),
+        );
+
+        let s = Sphere::new();
+        let i = Intersection::new(&s, 4.0);
+        let comps = IntersectionComps::new(&i, &r);
+        assert_eq!(comps.t, i.t);
+        assert_eq!(comps.object, i.object);
+        assert_eq!(comps.point, Vec4::new_point(0.0, 0.0, -1.0));
+        assert_eq!(comps.eye_vec, Vec4::new_vec(0.0, 0.0, -1.0));
+        assert_eq!(comps.normal, Vec4::new_vec(0.0, 0.0, -1.0));
+        assert_eq!(comps.inside, false);
+
+        let r = Ray::new(&Vec4::POINT_ZERO, &Vec4::new_vec(0.0, 0.0, 1.0));
+
+        let s = Sphere::new();
+        let i = Intersection::new(&s, 1.0);
+        let comps = IntersectionComps::new(&i, &r);
+        assert_eq!(comps.t, i.t);
+        assert_eq!(comps.object, i.object);
+        assert_eq!(comps.point, Vec4::new_point(0.0, 0.0, 1.0));
+        assert_eq!(comps.eye_vec, Vec4::new_vec(0.0, 0.0, -1.0));
+        assert_eq!(comps.normal, Vec4::new_vec(0.0, 0.0, -1.0));
+        assert_eq!(comps.inside, true);
     }
 }
