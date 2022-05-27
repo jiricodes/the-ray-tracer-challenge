@@ -106,20 +106,23 @@ fn ch04() {
 
 fn ch05() {
     // Canwas
-    let size = 400.0;
+    let size = 1024.0;
     let height = size as u32;
     let width = size as u32;
     let mut canvas = Canvas::new(width, height);
 
     // Sphere
     let mut s = Sphere::new();
-    // s.transform = Mat4::scaling(1.0, 1.0, 1.0) * Mat4::shearing(1.0, 0.0, 0.0, 0.0, 0.0, 0.0);
-    s.material.color = Color::rgb(1.0, 0.2, 1.0);
+    s.transform = Mat4::scaling(1.0, 1.0, 1.0);
+    s.material.color = Color::WHITE;
+    s.material.shininess = 100.0;
+    s.material.ambient = 0.5;
+    s.material.specular = 1.0;
 
     // Light
     let light = PointLight {
-        position: Vec4::new_point(-30.0, 10.0, -30.0),
-        ..Default::default()
+        position: Vec4::new_point(-30.0, 50.0, -30.0),
+        intensity: Color::rgb(0.7, 0.7, 1.0),
     };
 
     // Ray

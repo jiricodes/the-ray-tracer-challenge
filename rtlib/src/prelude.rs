@@ -7,6 +7,7 @@ pub use crate::matrix::Mat4;
 pub use crate::ray::Ray;
 pub use crate::sphere::Sphere;
 pub use crate::vec4::Vec4;
+pub use crate::world::World;
 
 // Consts
 pub use crate::epsilon::EPSILON;
