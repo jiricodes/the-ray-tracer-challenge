@@ -24,6 +24,16 @@ impl Sphere {
         }
     }
 
+    pub fn with_material(material: Material) -> Self {
+        let mut new = Self::new();
+        new.material = material;
+        new
+    }
+
+    pub fn get_uid(&self) -> usize {
+        self.uid
+    }
+
     pub fn intersect<'a>(&'a self, ray: &Ray) -> Intersections {
         let ray = ray.transform(
             &self

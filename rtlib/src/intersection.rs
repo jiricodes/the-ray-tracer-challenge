@@ -68,6 +68,10 @@ impl<'a> Intersections<'a> {
     pub fn clear(&mut self) {
         self.intersections.clear()
     }
+
+    pub fn append(&mut self, other: &mut Self) {
+        self.intersections.append(&mut other.intersections);
+    }
 }
 
 #[cfg(test)]
