@@ -54,7 +54,6 @@ impl Material {
             };
             (dif, spec)
         };
-        dbg!((&ambient, &diffuse, &specular));
         ambient + diffuse + specular
     }
 }

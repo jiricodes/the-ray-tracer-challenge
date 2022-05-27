@@ -105,29 +105,53 @@ fn ch04() {
 }
 
 fn ch05() {
-    let height = 200;
-    let width = 200;
+    // Canwas
+    let size = 400.0;
+    let height = size as u32;
+    let width = size as u32;
     let mut canvas = Canvas::new(width, height);
-    let color = Color::WHITE;
 
+    // Sphere
     let mut s = Sphere::new();
-    s.transform = Mat4::scaling(40.0, 20.0, 50.0) * Mat4::shearing(1.0, 0.0, 0.0, 0.0, 0.0, 0.0);
+    // s.transform = Mat4::scaling(1.0, 1.0, 1.0) * Mat4::shearing(1.0, 0.0, 0.0, 0.0, 0.0, 0.0);
+    s.material.color = Color::rgb(1.0, 0.2, 1.0);
 
-    let direction = Vec4::new_vec(0.0, 0.0, 1.0);
+    // Light
+    let light = PointLight {
+        position: Vec4::new_point(-30.0, 10.0, -30.0),
+        ..Default::default()
+    };
+
+    // Ray
+    let ray_origin = Vec4::new_point(0.0, 0.0, -15.0);
+
+    // Wall
+    let wall_z = 10.0;
+    let wall_size = 7.0;
+
+    // World settings
+    let pixel_size = wall_size / size;
+    let half = wall_size / 2.0;
+
     for y in 0..height {
+        let world_y = half - pixel_size * y as f32;
         for x in 0..width {
-            let r = Ray::new(
-                &Vec4::new_point(
-                    x as f32 - (width as f32 / 2.0),
-                    y as f32 - (height as f32 / 2.0),
-                    -1000.0,
-                ),
-                &direction,
-            );
+            let world_x = -half + pixel_size * x as f32;
+
+            let position = Vec4::new_point(world_x, world_y, wall_z);
+
+            let ray_dir = (position - ray_origin).normalize();
+            let r = Ray::new(&ray_origin, &ray_dir);
+
             let mut ixs = s.intersect(&r);
             ixs.sort();
             let hit = ixs.hit();
             if hit.is_some() {
+                let h = hit.unwrap();
+                let p = r.position(h.t);
+                let n = h.object.normal_at(&p);
+                let eye = -r.direction;
+                let color = h.object.material.lighting(&p, &light, &eye, &n);
                 let _ = canvas.put_pixel(x, y, color);
             }
         }
