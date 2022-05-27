@@ -103,32 +103,46 @@ where
     }
 }
 
-impl<T> Mul<T> for Color
-where
-    T: Into<f32>,
-{
+impl Mul for Color {
     type Output = Color;
-    fn mul(self, rhs: T) -> Self::Output {
-        let m: f32 = rhs.into();
+    fn mul(self, other: Color) -> Self::Output {
         Self::Output {
-            r: self.r * m,
-            g: self.g * m,
-            b: self.b * m,
+            r: self.r * other.r,
+            g: self.g * other.g,
+            b: self.b * other.b,
         }
     }
 }
 
-impl<T> Mul<T> for &Color
-where
-    T: Into<f32>,
-{
+impl Mul<&Color> for &Color {
     type Output = Color;
-    fn mul(self, rhs: T) -> Self::Output {
-        let m: f32 = rhs.into();
+    fn mul(self, rhs: &Color) -> Self::Output {
         Self::Output {
-            r: self.r * m,
-            g: self.g * m,
-            b: self.b * m,
+            r: self.r * rhs.r,
+            g: self.g * rhs.g,
+            b: self.b * rhs.b,
+        }
+    }
+}
+
+impl Mul<f32> for Color {
+    type Output = Color;
+    fn mul(self, rhs: f32) -> Self::Output {
+        Self::Output {
+            r: self.r * rhs,
+            g: self.g * rhs,
+            b: self.b * rhs,
+        }
+    }
+}
+
+impl Mul<f32> for &Color {
+    type Output = Color;
+    fn mul(self, rhs: f32) -> Self::Output {
+        Self::Output {
+            r: self.r * rhs,
+            g: self.g * rhs,
+            b: self.b * rhs,
         }
     }
 }
