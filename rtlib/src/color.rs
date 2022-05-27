@@ -1,7 +1,8 @@
+use crate::epsilon::EPSILON;
 use std::cmp::PartialEq;
 use std::ops::{Add, Div, Mul, Sub};
 
-#[derive(Debug, PartialEq, Copy, Clone)]
+#[derive(Debug, Copy, Clone)]
 pub struct Color {
     pub r: f32,
     pub g: f32,
@@ -57,6 +58,21 @@ impl Color {
             (self.b.clamp(0.0, 1.0) * 255.0).round() as u32
         )
     }
+
+    pub fn abs(self) -> Self {
+        Self {
+            r: self.r.abs(),
+            g: self.g.abs(),
+            b: self.b.abs(),
+        }
+    }
+}
+
+impl PartialEq<Color> for Color {
+    fn eq(&self, other: &Color) -> bool {
+        let a = (self - other).abs();
+        a.r < EPSILON && a.g < EPSILON && a.b < EPSILON
+    }
 }
 
 impl<T> Add<T> for Color
@@ -81,24 +97,26 @@ where
     }
 }
 
-impl<T> Sub<T> for Color
-where
-    T: Into<Color>,
-{
+impl Sub for Color {
     type Output = Color;
-    fn sub(self, rhs: T) -> Self::Output {
-        let rhs: Color = rhs.into();
+
+    fn sub(self, rhs: Color) -> Self::Output {
         Color::rgb(self.r - rhs.r, self.g - rhs.g, self.b - rhs.b)
     }
 }
 
-impl<T> Sub<T> for &Color
-where
-    T: Into<Color>,
-{
+impl Sub<&Color> for Color {
     type Output = Color;
-    fn sub(self, rhs: T) -> Self::Output {
-        let rhs: Color = rhs.into();
+
+    fn sub(self, rhs: &Color) -> Self::Output {
+        Color::rgb(self.r - rhs.r, self.g - rhs.g, self.b - rhs.b)
+    }
+}
+
+impl Sub for &Color {
+    type Output = Color;
+
+    fn sub(self, rhs: &Color) -> Self::Output {
         Color::rgb(self.r - rhs.r, self.g - rhs.g, self.b - rhs.b)
     }
 }
