@@ -8,8 +8,8 @@ use crate::sphere::Sphere;
 use crate::vec4::Vec4;
 
 pub struct World {
-    objects: Vec<Sphere>,
-    lights: Vec<PointLight>,
+    pub objects: Vec<Sphere>,
+    pub lights: Vec<PointLight>,
 }
 
 impl World {
