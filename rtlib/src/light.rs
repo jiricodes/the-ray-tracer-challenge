@@ -3,12 +3,12 @@ use crate::vec4::Vec4;
 
 #[derive(Debug)]
 pub struct PointLight {
-    pub intensity: Color,
     pub position: Vec4,
+    pub intensity: Color,
 }
 
 impl PointLight {
-    pub fn new(intensity: Color, position: Vec4) -> Self {
+    pub fn new(position: Vec4, intensity: Color) -> Self {
         Self {
             intensity,
             position,
