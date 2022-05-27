@@ -1,9 +1,10 @@
 use crate::color::Color;
 use crate::vec4::Vec4;
 
+#[derive(Debug)]
 pub struct PointLight {
-    intensity: Color,
-    position: Vec4,
+    pub intensity: Color,
+    pub position: Vec4,
 }
 
 impl PointLight {
