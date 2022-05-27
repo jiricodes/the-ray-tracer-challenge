@@ -114,34 +114,28 @@ where
     }
 }
 
-impl<T> Sub<T> for Vec4
-where
-    T: Into<Vec4>,
-{
+impl Sub for Vec4 {
     type Output = Vec4;
-    fn sub(self, rhs: T) -> Self::Output {
-        let rhs: Vec4 = rhs.into();
+
+    fn sub(self, other: Vec4) -> Self::Output {
         Vec4::new(
-            self.x - rhs.x,
-            self.y - rhs.y,
-            self.z - rhs.z,
-            self.w - rhs.w,
+            self.x - other.x,
+            self.y - other.y,
+            self.z - other.z,
+            self.w - other.w,
         )
     }
 }
 
-impl<T> Sub<T> for &Vec4
-where
-    T: Into<Vec4>,
-{
+impl Sub<&Vec4> for Vec4 {
     type Output = Vec4;
-    fn sub(self, rhs: T) -> Self::Output {
-        let rhs: Vec4 = rhs.into();
+
+    fn sub(self, other: &Vec4) -> Self::Output {
         Vec4::new(
-            self.x - rhs.x,
-            self.y - rhs.y,
-            self.z - rhs.z,
-            self.w - rhs.w,
+            self.x - other.x,
+            self.y - other.y,
+            self.z - other.z,
+            self.w - other.w,
         )
     }
 }
