@@ -32,6 +32,10 @@ impl Camera {
         }
     }
 
+    pub fn view_transform(&mut self, from: &Vec4, to: &Vec4, up: &Vec4) {
+        self.transform = Mat4::view_transform(from, to, up);
+    }
+
     pub fn ray_for_pixel(&self, x: u32, y: u32) -> Ray {
         let x_offset = (x as f32 + 0.5) * self.pixel_size;
         let y_offset = (y as f32 + 0.5) * self.pixel_size;
