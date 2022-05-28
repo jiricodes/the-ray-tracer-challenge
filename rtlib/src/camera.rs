@@ -32,6 +32,14 @@ impl Camera {
         }
     }
 
+    pub fn get_width(&self) -> u32 {
+        self.width
+    }
+
+    pub fn get_height(&self) -> u32 {
+        self.height
+    }
+
     pub fn view_transform(&mut self, from: &Vec4, to: &Vec4, up: &Vec4) {
         self.transform = Mat4::view_transform(from, to, up);
     }

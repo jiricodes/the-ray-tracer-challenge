@@ -1,3 +1,4 @@
+// structs
 pub use crate::canvas::Canvas;
 pub use crate::color::Color;
 pub use crate::intersection::Intersection;
@@ -8,6 +9,9 @@ pub use crate::ray::Ray;
 pub use crate::sphere::Sphere;
 pub use crate::vec4::Vec4;
 pub use crate::world::World;
+
+// functions
+pub use crate::render::render;
 
 // Consts
 pub use crate::epsilon::EPSILON;
