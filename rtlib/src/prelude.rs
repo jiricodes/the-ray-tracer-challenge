@@ -1,4 +1,5 @@
 // structs
+pub use crate::camera::Camera;
 pub use crate::canvas::Canvas;
 pub use crate::color::Color;
 pub use crate::intersection::Intersection;
