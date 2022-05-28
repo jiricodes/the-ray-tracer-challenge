@@ -136,6 +136,22 @@ impl Mat4 {
         ret.data[2][1] = zy;
         ret
     }
+
+    pub fn view_transform(from: &Vec4, to: &Vec4, up: &Vec4) -> Self {
+        let forward = (to - from).normalize();
+        let n_up = up.normalize();
+        let left = forward.cross(&n_up);
+        let true_up = left.cross(&forward);
+        let orientation = Self {
+            data: [
+                [left.x, left.y, left.z, 0.0],
+                [true_up.x, true_up.y, true_up.z, 0.0],
+                [-forward.x, -forward.y, -forward.z, 0.0],
+                [0.0, 0.0, 0.0, 1.0],
+            ],
+        };
+        orientation * Self::translation(-from.x, -from.y, -from.z)
+    }
 }
 
 impl From<[[f32; 4]; 4]> for Mat4 {
@@ -330,9 +346,9 @@ impl From<[[f32; 3]; 3]> for Mat3 {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::epsilon::EPSILON;
     use std::f32::consts::PI;
 
-    const EPSILON: f32 = 0.00001;
     #[test]
     fn new_mat4() {
         let data = [
@@ -815,5 +831,56 @@ mod tests {
         let transform = t * scale * rot;
         let p5 = transform * p;
         assert_eq!(p5, Vec4::new_point(15.0, 0.0, 7.0));
+    }
+
+    fn approx_eq(a: &Mat4, b: &Mat4) {
+        for r in 0..4 {
+            for c in 0..4 {
+                let n = (a.data[r][c] - b.data[r][c]).abs();
+                assert!(
+                    n < EPSILON,
+                    "Matrices differ at [{}][{}]: {:.8} != {:.8}",
+                    r,
+                    c,
+                    a.data[r][c],
+                    b.data[r][c]
+                );
+            }
+        }
+    }
+
+    #[test]
+    fn view_transform() {
+        let from = Vec4::POINT_ZERO;
+        let to = Vec4::new_point(0.0, 0.0, -1.0);
+        let up = Vec4::VEC_Y_ONE;
+        let t = Mat4::view_transform(&from, &to, &up);
+        assert_eq!(Mat4::IDENTITY, t);
+
+        let from = Vec4::POINT_ZERO;
+        let to = Vec4::new_point(0.0, 0.0, 1.0);
+        let up = Vec4::VEC_Y_ONE;
+        let t = Mat4::view_transform(&from, &to, &up);
+        assert_eq!(Mat4::scaling(-1.0, 1.0, -1.0), t);
+
+        let from = Vec4::new_point(0.0, 0.0, 8.0);
+        let to = Vec4::POINT_ZERO;
+        let up = Vec4::VEC_Y_ONE;
+        let t = Mat4::view_transform(&from, &to, &up);
+        assert_eq!(Mat4::translation(0.0, 0.0, -8.0), t);
+
+        let from = Vec4::new_point(1.0, 3.0, 2.0);
+        let to = Vec4::new_point(4.0, -2.0, 8.0);
+        let up = Vec4::new_vec(1.0, 1.0, 0.0);
+        let t = Mat4::view_transform(&from, &to, &up);
+        let exp = Mat4 {
+            data: [
+                [-0.50709, 0.50709, 0.67612, -2.36643],
+                [0.76772, 0.60609, 0.12122, -2.82843],
+                [-0.35857, 0.59761, -0.71714, 0.0],
+                [0.0, 0.0, 0.0, 1.0],
+            ],
+        };
+        approx_eq(&t, &exp);
     }
 }
