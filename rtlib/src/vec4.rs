@@ -24,6 +24,28 @@ impl Vec4 {
         z: 0.0,
         w: 1.0,
     };
+
+    pub const VEC_X_ONE: Self = Self {
+        x: 1.0,
+        y: 0.0,
+        z: 0.0,
+        w: 0.0,
+    };
+
+    pub const VEC_Y_ONE: Self = Self {
+        x: 0.0,
+        y: 1.0,
+        z: 0.0,
+        w: 0.0,
+    };
+
+    pub const VEC_Z_ONE: Self = Self {
+        x: 0.0,
+        y: 0.0,
+        z: 1.0,
+        w: 0.0,
+    };
+
     pub fn new(x: f32, y: f32, z: f32, w: f32) -> Self {
         Self { x, y, z, w }
     }
