@@ -1,5 +1,5 @@
 use crate::color::Color;
-use crate::intersection::Intersections;
+use crate::intersection::{IntersectionComps, Intersections};
 use crate::light::PointLight;
 use crate::material::Material;
 use crate::matrix::Mat4;
@@ -37,6 +37,24 @@ impl World {
         intersections.sort();
         intersections
     }
+
+    pub fn shade_hit(&self, comps: &IntersectionComps) -> Color {
+        let mut color = Color::BLACK;
+        for light in self.lights.iter() {
+            color = color + comps.lighting(light);
+        }
+        color
+    }
+
+    pub fn color_at(&self, r: &Ray) -> Color {
+        let xs = self.intersect(r);
+        if let Some(i) = xs.hit() {
+            let comps = IntersectionComps::new(&i, r);
+            self.shade_hit(&comps)
+        } else {
+            Color::BLACK
+        }
+    }
 }
 
 impl Default for World {
@@ -66,6 +84,7 @@ impl Default for World {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::intersection::Intersection;
 
     #[test]
     fn basic() {
@@ -98,5 +117,46 @@ mod tests {
         assert_eq!(4.5, xs.intersections[1].t);
         assert_eq!(5.5, xs.intersections[2].t);
         assert_eq!(6.0, xs.intersections[3].t);
+    }
+
+    #[test]
+    fn hit_shading() {
+        // Outside intersection
+        let mut w = World::default();
+        let r = Ray::new(&Vec4::new_point(0.0, 0.0, -5.0), &Vec4::VEC_Z_ONE);
+        let i = Intersection::new(&w.objects[0], 4.0);
+        let comps = IntersectionComps::new(&i, &r);
+        let color = w.shade_hit(&comps);
+        assert_eq!(Color::rgb(0.38066, 0.47583, 0.2855), color);
+
+        //Inside intersection
+        w.lights[0] = PointLight::new(Vec4::new_point(0.0, 0.25, 0.0), Color::WHITE);
+        let r = Ray::new(&Vec4::POINT_ZERO, &Vec4::VEC_Z_ONE);
+        let i = Intersection::new(&w.objects[1], 0.5);
+        let comps = IntersectionComps::new(&i, &r);
+        let color = w.shade_hit(&comps);
+        assert_eq!(Color::rgb(0.90498, 0.90498, 0.90498), color);
+    }
+
+    #[test]
+    fn color_at() {
+        let mut w = World::default();
+
+        // No hit
+        let r = Ray::new(&Vec4::new_point(0.0, 0.0, -5.0), &Vec4::VEC_Y_ONE);
+        let color = w.color_at(&r);
+        assert_eq!(Color::BLACK, color);
+
+        // Default hit
+        let r = Ray::new(&Vec4::new_point(0.0, 0.0, -5.0), &Vec4::VEC_Z_ONE);
+        let color = w.color_at(&r);
+        assert_eq!(Color::rgb(0.38066, 0.47583, 0.2855), color);
+
+        // hit small from inside of big
+        w.objects[0].material.ambient = 1.0;
+        w.objects[1].material.ambient = 1.0;
+        let r = Ray::new(&Vec4::new_point(0.0, 0.0, 0.75), &-Vec4::VEC_Z_ONE);
+        let color = w.color_at(&r);
+        assert_eq!(w.objects[1].material.color, color);
     }
 }

@@ -1,3 +1,5 @@
+use crate::color::Color;
+use crate::light::PointLight;
 use crate::ray::Ray;
 use crate::sphere::Sphere;
 use crate::vec4::Vec4;
@@ -40,7 +42,7 @@ impl<'a> Intersections<'a> {
         });
     }
 
-    pub fn hit(&mut self) -> Option<&Intersection> {
+    pub fn hit(&self) -> Option<&Intersection> {
         self.intersections.iter().find(|i| i.t >= 0.0)
     }
 
@@ -83,6 +85,12 @@ impl<'a> IntersectionComps<'a> {
             normal: n,
             inside,
         }
+    }
+
+    pub fn lighting(&self, light: &PointLight) -> Color {
+        self.object
+            .material
+            .lighting(&self.point, light, &self.eye_vec, &self.normal)
     }
 }
 
