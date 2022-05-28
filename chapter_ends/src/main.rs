@@ -112,21 +112,25 @@ fn ch05() {
     let mut canvas = Canvas::new(width, height);
 
     // Sphere
-    let mut s = Sphere::new();
-    s.transform = Mat4::scaling(1.0, 1.0, 1.0);
-    s.material.color = Color::WHITE;
-    s.material.shininess = 100.0;
-    s.material.ambient = 0.5;
-    s.material.specular = 1.0;
+    // let mut s = Sphere::new();
+    // s.transform = Mat4::scaling(1.0, 1.0, 1.0);
+    // s.material.color = Color::WHITE;
+    // s.material.shininess = 100.0;
+    // s.material.ambient = 0.5;
+    // s.material.specular = 1.0;
 
     // Light
     let light = PointLight {
-        position: Vec4::new_point(-30.0, 50.0, -30.0),
+        position: Vec4::new_point(-100.0, 100.0, -100.0),
         intensity: Color::rgb(0.7, 0.7, 1.0),
     };
 
+    let mut w = World::default();
+    w.objects[0].transform = Mat4::translation(1.5, 0.0, 0.0);
+    w.lights[0] = light;
+
     // Ray
-    let ray_origin = Vec4::new_point(0.0, 0.0, -15.0);
+    let ray_origin = Vec4::new_point(0.0, 0.0, -40.0);
 
     // Wall
     let wall_z = 10.0;
@@ -146,15 +150,14 @@ fn ch05() {
             let ray_dir = (position - ray_origin).normalize();
             let r = Ray::new(&ray_origin, &ray_dir);
 
-            let mut ixs = s.intersect(&r);
-            ixs.sort();
+            let mut ixs = w.intersect(&r);
             let hit = ixs.hit();
             if hit.is_some() {
                 let h = hit.unwrap();
                 let p = r.position(h.t);
                 let n = h.object.normal_at(&p);
                 let eye = -r.direction;
-                let color = h.object.material.lighting(&p, &light, &eye, &n);
+                let color = h.object.material.lighting(&p, &w.lights[0], &eye, &n);
                 let _ = canvas.put_pixel(x, y, color);
             }
         }
