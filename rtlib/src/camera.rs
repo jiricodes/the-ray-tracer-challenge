@@ -1,5 +1,6 @@
 use crate::matrix::Mat4;
 use crate::ray::Ray;
+use crate::vec4::Vec4;
 
 pub struct Camera {
     height: u32,
@@ -31,8 +32,25 @@ impl Camera {
         }
     }
 
-    pub fn ray_for_pixel(x: u32, y: u32) -> Ray {
-        unimplemented!()
+    pub fn ray_for_pixel(&self, x: u32, y: u32) -> Ray {
+        let x_offset = (x as f32 + 0.5) * self.pixel_size;
+        let y_offset = (y as f32 + 0.5) * self.pixel_size;
+
+        let world_x = self.half_width - x_offset;
+        let world_y = self.half_height - y_offset;
+
+        let pixel = self
+            .transform
+            .inverse()
+            .expect("Camera transform inverse matrix")
+            * Vec4::new_point(world_x, world_y, -1.0);
+        let origin = self
+            .transform
+            .inverse()
+            .expect("Camera transform inverse matrix")
+            * Vec4::POINT_ZERO;
+        let direction = (pixel - origin).normalize();
+        Ray::new(&origin, &direction)
     }
 }
 
@@ -54,5 +72,26 @@ mod tests {
 
         let camera = Camera::new(125, 200, PI / 2.0);
         assert_eq!(camera.pixel_size, 0.01);
+    }
+
+    #[test]
+    fn ray_for_pixel() {
+        let mut camera = Camera::new(201, 101, PI / 2.0);
+
+        let r = camera.ray_for_pixel(100, 50);
+        assert_eq!(r.origin, Vec4::POINT_ZERO);
+        assert_eq!(r.direction, -Vec4::VEC_Z_ONE);
+
+        let r = camera.ray_for_pixel(0, 0);
+        assert_eq!(r.origin, Vec4::POINT_ZERO);
+        assert_eq!(r.direction, Vec4::new_vec(0.66519, 0.33259, -0.66851));
+
+        camera.transform = Mat4::rotation_y(PI / 4.0) * Mat4::translation(0.0, -2.0, 5.0);
+        let r = camera.ray_for_pixel(100, 50);
+        assert_eq!(r.origin, Vec4::new_point(0.0, 2.0, -5.0));
+        assert_eq!(
+            r.direction,
+            Vec4::new_vec(2f32.sqrt() / 2.0, 0.0, -2f32.sqrt() / 2.0)
+        );
     }
 }
