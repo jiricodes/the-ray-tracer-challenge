@@ -40,8 +40,9 @@ impl World {
 
     pub fn shade_hit(&self, comps: &IntersectionComps) -> Color {
         let mut color = Color::BLACK;
+        let is_shadowed = self.is_shadowed(comps.get_overpoint());
         for light in self.lights.iter() {
-            color = color + comps.lighting(light);
+            color = color + comps.lighting(light, is_shadowed);
         }
         color
     }
@@ -54,6 +55,20 @@ impl World {
         } else {
             Color::BLACK
         }
+    }
+
+    pub fn is_shadowed(&self, p: &Vec4) -> bool {
+        for light in self.lights.iter() {
+            let p_to_l = light.position - p;
+            let light_dist = p_to_l.magnitude();
+            let ray = Ray::new(p, &p_to_l.normalize());
+            let xs = self.intersect(&ray);
+            let h = xs.hit();
+            if h.is_some() && h.unwrap().t < light_dist {
+                return true;
+            }
+        }
+        false
     }
 }
 
@@ -139,6 +154,23 @@ mod tests {
     }
 
     #[test]
+    fn ball_in_shadows() {
+        let mut w = World::new();
+        w.add_light(PointLight::new(
+            Vec4::new_point(0.0, 0.0, -10.0),
+            Color::rgb(1.0, 1.0, 1.0),
+        ));
+        w.add_object(Sphere::new());
+        let mut s = Sphere::new();
+        s.transform = Mat4::translation(0.0, 0.0, 10.0);
+        w.add_object(s);
+        let ray = Ray::new(&Vec4::new_point(0.0, 0.0, 5.0), &Vec4::VEC_Z_ONE);
+        let i = Intersection::new(&w.objects[1], 4.0);
+        let comps = IntersectionComps::new(&i, &ray);
+        assert_eq!(Color::rgb(0.1, 0.1, 0.1), w.shade_hit(&comps));
+    }
+
+    #[test]
     fn color_at() {
         let mut w = World::default();
 
@@ -158,5 +190,18 @@ mod tests {
         let r = Ray::new(&Vec4::new_point(0.0, 0.0, 0.75), &-Vec4::VEC_Z_ONE);
         let color = w.color_at(&r);
         assert_eq!(w.objects[1].material.color, color);
+    }
+
+    #[test]
+    fn shadows() {
+        let w = World::default();
+        let p = Vec4::new_point(0.0, 10.0, 0.0);
+        assert_eq!(false, w.is_shadowed(&p));
+
+        let p = Vec4::new_point(10.0, -10.0, 10.0);
+        assert_eq!(true, w.is_shadowed(&p));
+
+        let p = Vec4::new_point(-2.0, 2.0, -2.0);
+        assert_eq!(false, w.is_shadowed(&p));
     }
 }

@@ -22,7 +22,14 @@ impl Material {
         }
     }
 
-    pub fn lighting(&self, p: &Vec4, light: &PointLight, eye_vec: &Vec4, normal: &Vec4) -> Color {
+    pub fn lighting(
+        &self,
+        p: &Vec4,
+        light: &PointLight,
+        eye_vec: &Vec4,
+        normal: &Vec4,
+        in_snadow: bool,
+    ) -> Color {
         // combine the surface color with the light's color intensity
         let eff_color = self.color * light.intensity;
 
@@ -31,6 +38,11 @@ impl Material {
 
         // Ambient contribution
         let ambient = eff_color * self.ambient;
+
+        // if in shadow, then ignore diffuse and specular
+        if in_snadow {
+            return ambient;
+        }
 
         // check if the light is behind the surface
         let light_dot_normal = light_dir.dot(normal);
@@ -96,7 +108,7 @@ mod tests {
         let light = PointLight::new(Vec4::new_point(0.0, 0.0, -10.0), Color::rgb(1.0, 1.0, 1.0));
         assert_eq!(
             Color::rgb(1.9, 1.9, 1.9),
-            m.lighting(&p, &light, &eye_vec, &normal)
+            m.lighting(&p, &light, &eye_vec, &normal, false)
         );
 
         // Eye PI/2 off normal
@@ -105,7 +117,7 @@ mod tests {
         let light = PointLight::new(Vec4::new_point(0.0, 0.0, -10.0), Color::rgb(1.0, 1.0, 1.0));
         assert_eq!(
             Color::rgb(1.0, 1.0, 1.0),
-            m.lighting(&p, &light, &eye_vec, &normal)
+            m.lighting(&p, &light, &eye_vec, &normal, false)
         );
 
         // Eye on normal, light PI/2 offsets
@@ -115,7 +127,7 @@ mod tests {
         let c = 0.1 + 0.9 * 2f32.sqrt() / 2.0 + 0.0; // 0.7364
         assert_eq!(
             Color::rgb(c, c, c),
-            m.lighting(&p, &light, &eye_vec, &normal)
+            m.lighting(&p, &light, &eye_vec, &normal, false)
         );
 
         // Light PI/2 offsets, eye directly on reflection path
@@ -125,7 +137,7 @@ mod tests {
         let c = 1.6363853; // 0.1 + 0.9 * 2f32.sqrt() / 2.0 + 0.9; // 1.6364
         assert_eq!(
             Color::rgb(c, c, c),
-            m.lighting(&p, &light, &eye_vec, &normal)
+            m.lighting(&p, &light, &eye_vec, &normal, false)
         );
 
         // Light behind the surface
@@ -134,7 +146,16 @@ mod tests {
         let light = PointLight::new(Vec4::new_point(0.0, 0.0, 10.0), Color::rgb(1.0, 1.0, 1.0));
         assert_eq!(
             Color::rgb(0.1, 0.1, 0.1),
-            m.lighting(&p, &light, &eye_vec, &normal)
+            m.lighting(&p, &light, &eye_vec, &normal, false)
+        );
+
+        // Lighting with the surface in shadow
+        let eye_vec = Vec4::new_vec(0.0, 0.0, -1.0);
+        let normal = Vec4::new_vec(0.0, 0.0, -1.0);
+        let light = PointLight::new(Vec4::new_point(0.0, 0.0, -10.0), Color::rgb(1.0, 1.0, 1.0));
+        assert_eq!(
+            Color::rgb(0.1, 0.1, 0.1),
+            m.lighting(&p, &light, &eye_vec, &normal, true)
         );
     }
 }
