@@ -50,6 +50,11 @@ fn main() {
     small_sphere.material.diffuse = 0.7;
     small_sphere.material.specular = 0.3;
 
+    // small sphere in shadows
+    let mut shadow_sphere = Sphere::new();
+    shadow_sphere.transform = Mat4::translation(-1.0, 0.15, -0.6) * Mat4::scaling(0.15, 0.15, 0.15);
+    shadow_sphere.material.color = Color::rgb(1.0, 0.3, 0.1);
+
     // Light
     let light = PointLight::new(Vec4::new_point(-10.0, 10.0, -10.0), Color::WHITE);
 
@@ -61,6 +66,7 @@ fn main() {
     w.add_object(large_sphere);
     w.add_object(medium_sphere);
     w.add_object(small_sphere);
+    w.add_object(shadow_sphere);
     w.add_light(light);
 
     // Camera
