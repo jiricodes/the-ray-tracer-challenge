@@ -5,14 +5,14 @@ use crate::vec4::Vec4;
 #[derive(Debug, PartialEq, Clone, Copy)]
 pub struct Material {
     pub color: Color,
-    pub ambient: f32,
-    pub diffuse: f32,
-    pub specular: f32,
-    pub shininess: f32,
+    pub ambient: f64,
+    pub diffuse: f64,
+    pub specular: f64,
+    pub shininess: f64,
 }
 
 impl Material {
-    pub fn new(color: Color, ambient: f32, diffuse: f32, specular: f32, shininess: f32) -> Self {
+    pub fn new(color: Color, ambient: f64, diffuse: f64, specular: f64, shininess: f64) -> Self {
         Self {
             color,
             ambient,
@@ -112,7 +112,7 @@ mod tests {
         );
 
         // Eye PI/2 off normal
-        let eye_vec = Vec4::new_vec(0.0, 2f32.sqrt() / 2.0, -2f32.sqrt() / 2.0);
+        let eye_vec = Vec4::new_vec(0.0, 2f64.sqrt() / 2.0, -2f64.sqrt() / 2.0);
         let normal = Vec4::new_vec(0.0, 0.0, -1.0);
         let light = PointLight::new(Vec4::new_point(0.0, 0.0, -10.0), Color::rgb(1.0, 1.0, 1.0));
         assert_eq!(
@@ -124,17 +124,17 @@ mod tests {
         let eye_vec = Vec4::new_vec(0.0, 0.0, -1.0);
         let normal = Vec4::new_vec(0.0, 0.0, -1.0);
         let light = PointLight::new(Vec4::new_point(0.0, 10.0, -10.0), Color::rgb(1.0, 1.0, 1.0));
-        let c = 0.1 + 0.9 * 2f32.sqrt() / 2.0 + 0.0; // 0.7364
+        let c = 0.1 + 0.9 * 2f64.sqrt() / 2.0 + 0.0; // 0.7364
         assert_eq!(
             Color::rgb(c, c, c),
             m.lighting(&p, &light, &eye_vec, &normal, false)
         );
 
         // Light PI/2 offsets, eye directly on reflection path
-        let eye_vec = Vec4::new_vec(0.0, -2f32.sqrt() / 2.0, -2f32.sqrt() / 2.0);
+        let eye_vec = Vec4::new_vec(0.0, -2f64.sqrt() / 2.0, -2f64.sqrt() / 2.0);
         let normal = Vec4::new_vec(0.0, 0.0, -1.0);
         let light = PointLight::new(Vec4::new_point(0.0, 10.0, -10.0), Color::rgb(1.0, 1.0, 1.0));
-        let c = 1.6363853; // 0.1 + 0.9 * 2f32.sqrt() / 2.0 + 0.9; // 1.6364
+        let c = 1.6363961030678928; // 0.1 + 0.9 * 2f64.sqrt() / 2.0 + 0.9; // 1.6364
         assert_eq!(
             Color::rgb(c, c, c),
             m.lighting(&p, &light, &eye_vec, &normal, false)

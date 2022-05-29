@@ -8,11 +8,11 @@ use crate::vec4::Vec4;
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub struct Intersection<'a> {
     pub object: &'a Sphere,
-    pub t: f32,
+    pub t: f64,
 }
 
 impl<'a> Intersection<'a> {
-    pub fn new(object: &'a Sphere, t: f32) -> Self {
+    pub fn new(object: &'a Sphere, t: f64) -> Self {
         Self { object, t }
     }
 }
@@ -59,7 +59,7 @@ impl<'a> Intersections<'a> {
 /// Collection of precomputed values of an intersection.
 #[derive(Debug)]
 pub struct IntersectionComps<'a> {
-    t: f32,
+    t: f64,
     object: &'a Sphere,
     point: Vec4,
     eye_vec: Vec4,

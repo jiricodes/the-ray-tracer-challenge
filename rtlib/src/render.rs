@@ -23,7 +23,7 @@ mod tests {
     use super::*;
     use crate::color::Color;
     use crate::vec4::Vec4;
-    use std::f32::consts::PI;
+    use std::f64::consts::PI;
 
     #[test]
     fn basic_render() {

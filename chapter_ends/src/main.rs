@@ -9,7 +9,7 @@ fn main() {
 
     // Floor sphere
     let mut floor = Sphere::new();
-    floor.transform = Mat4::scaling(10.0, 0.05, 10.0);
+    floor.transform = Mat4::scaling(10.0, 0.01, 10.0);
     floor.material = plane_material;
 
     // Left Wall
@@ -17,7 +17,7 @@ fn main() {
     left_wall.transform = Mat4::translation(0.0, 0.0, 5.0)
         * Mat4::rotation_y(-PI / 4.0)
         * Mat4::rotation_x(PI / 2.0)
-        * Mat4::scaling(10.0, 1.0, 10.0);
+        * Mat4::scaling(10.0, 0.01, 10.0);
     left_wall.material = plane_material;
 
     // Right wall
@@ -25,7 +25,7 @@ fn main() {
     right_wall.transform = Mat4::translation(0.0, 0.0, 5.0)
         * Mat4::rotation_y(PI / 4.0)
         * Mat4::rotation_x(PI / 2.0)
-        * Mat4::scaling(10.0, 1.0, 10.0);
+        * Mat4::scaling(10.0, 0.01, 10.0);
     right_wall.material = plane_material;
 
     // Large sphere

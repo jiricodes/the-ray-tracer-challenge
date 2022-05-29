@@ -3,15 +3,15 @@ use std::ops::{Add, Div, Mul, Neg, Sub};
 
 #[derive(Debug, Copy, Clone)]
 pub struct Vec4 {
-    pub x: f32,
-    pub y: f32,
-    pub z: f32,
-    pub w: f32,
+    pub x: f64,
+    pub y: f64,
+    pub z: f64,
+    pub w: f64,
 }
 
 impl Vec4 {
     /// Our minimum error tollerance
-    const _EPSILON: f32 = 0.00001;
+    const _EPSILON: f64 = 0.00001;
     pub const ZERO: Self = Self {
         x: 0.0,
         y: 0.0,
@@ -46,19 +46,19 @@ impl Vec4 {
         w: 0.0,
     };
 
-    pub fn new(x: f32, y: f32, z: f32, w: f32) -> Self {
+    pub fn new(x: f64, y: f64, z: f64, w: f64) -> Self {
         Self { x, y, z, w }
     }
 
-    pub fn new_point(x: f32, y: f32, z: f32) -> Self {
+    pub fn new_point(x: f64, y: f64, z: f64) -> Self {
         Self { x, y, z, w: 1.0 }
     }
 
-    pub fn new_vec(x: f32, y: f32, z: f32) -> Self {
+    pub fn new_vec(x: f64, y: f64, z: f64) -> Self {
         Self { x, y, z, w: 0.0 }
     }
 
-    pub fn magnitude(&self) -> f32 {
+    pub fn magnitude(&self) -> f64 {
         (self.x.powi(2) + self.y.powi(2) + self.z.powi(2) + self.w.powi(2)).sqrt()
     }
 
@@ -76,13 +76,13 @@ impl Vec4 {
         }
     }
 
-    pub fn dot(&self, other: &Self) -> f32 {
+    pub fn dot(&self, other: &Self) -> f64 {
         self.x * other.x + self.y * other.y + self.z * other.z + self.w * other.w
     }
 
     pub fn cross(&self, other: &Self) -> Self {
         if self.w != 0.0 {
-            panic!("Attempting cross product on non-vectors (w != 0f32)");
+            panic!("Attempting cross product on non-vectors (w != 0f64)");
         }
         Self {
             x: self.y * other.z - self.z * other.y,
@@ -174,10 +174,10 @@ impl Sub<&Vec4> for &Vec4 {
     }
 }
 
-impl Mul<f32> for Vec4 {
+impl Mul<f64> for Vec4 {
     type Output = Vec4;
-    fn mul(self, rhs: f32) -> Self::Output {
-        let m: f32 = rhs.into();
+    fn mul(self, rhs: f64) -> Self::Output {
+        let m: f64 = rhs.into();
         Self::Output {
             x: self.x * m,
             y: self.y * m,
@@ -189,11 +189,11 @@ impl Mul<f32> for Vec4 {
 
 impl<T> Mul<T> for &Vec4
 where
-    T: Into<f32>,
+    T: Into<f64>,
 {
     type Output = Vec4;
     fn mul(self, rhs: T) -> Self::Output {
-        let m: f32 = rhs.into();
+        let m: f64 = rhs.into();
         Self::Output {
             x: self.x * m,
             y: self.y * m,
@@ -205,11 +205,11 @@ where
 
 impl<T> Div<T> for Vec4
 where
-    T: Into<f32>,
+    T: Into<f64>,
 {
     type Output = Vec4;
     fn div(self, rhs: T) -> Self::Output {
-        let m: f32 = rhs.into();
+        let m: f64 = rhs.into();
         if m == 0.0 {
             panic!("Cannot divide by zero-valued!");
         }
@@ -224,11 +224,11 @@ where
 
 impl<T> Div<T> for &Vec4
 where
-    T: Into<f32>,
+    T: Into<f64>,
 {
     type Output = Vec4;
     fn div(self, rhs: T) -> Self::Output {
-        let m: f32 = rhs.into();
+        let m: f64 = rhs.into();
         if m == 0.0 {
             panic!("Cannot divide by zero-valued!");
         }
@@ -332,9 +332,9 @@ mod tests {
         let v = Vec4::new_vec(0.0, 0.0, 1.0);
         assert_eq!(1.0, v.magnitude());
         let v = Vec4::new_vec(1.0, 2.0, 3.0);
-        assert_eq!(14.0f32.sqrt(), v.magnitude());
+        assert_eq!(14.0f64.sqrt(), v.magnitude());
         let v = Vec4::new_vec(-1.0, -2.0, -3.0);
-        assert_eq!(14.0f32.sqrt(), v.magnitude());
+        assert_eq!(14.0f64.sqrt(), v.magnitude());
     }
 
     #[test]
@@ -344,7 +344,7 @@ mod tests {
         assert_eq!(exp, v.normalize());
 
         let v = Vec4::new_vec(1.0, 2.0, 3.0);
-        let exp = Vec4::new_vec(1.0 / 14f32.sqrt(), 2.0 / 14f32.sqrt(), 3.0 / 14f32.sqrt());
+        let exp = Vec4::new_vec(1.0 / 14f64.sqrt(), 2.0 / 14f64.sqrt(), 3.0 / 14f64.sqrt());
         assert_eq!(exp, v.normalize());
 
         let v = Vec4::new_vec(1.0, 2.0, 3.0);
@@ -374,7 +374,7 @@ mod tests {
         assert_eq!(Vec4::new_vec(1.0, 1.0, 0.0), v.reflect(&n));
 
         let v = Vec4::new_vec(0.0, -1.0, 0.0);
-        let n = Vec4::new_vec(2f32.sqrt() / 2.0, 2f32.sqrt() / 2.0, 0.0);
+        let n = Vec4::new_vec(2f64.sqrt() / 2.0, 2f64.sqrt() / 2.0, 0.0);
         assert_eq!(Vec4::new_vec(1.0, 0.0, 0.0), v.reflect(&n));
     }
 }
