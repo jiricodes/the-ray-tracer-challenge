@@ -81,12 +81,12 @@ impl Intersections {
 /// Collection of precomputed values of an intersection.
 #[derive(Debug)]
 pub struct IntersectionComps {
-    t: f64,
+    _t: f64,
     object: BoxShape,
-    point: Vec4,
+    _point: Vec4,
     eye_vec: Vec4,
     normal: Vec4,
-    inside: bool,
+    _inside: bool,
     over_point: Vec4,
 }
 
@@ -101,12 +101,12 @@ impl IntersectionComps {
             n = -n;
         }
         Self {
-            t: i.t,
-            object: i.object,
-            point: p,
+            _t: i.t,
+            object: i.object.clone(),
+            _point: p,
             eye_vec: e,
             normal: n,
-            inside,
+            _inside: inside,
             over_point: p + (n * EPSILON),
         }
     }
@@ -135,8 +135,8 @@ mod tests {
     #[test]
     fn basic_inter() {
         let s = Sphere::default_boxed();
-        let i = Intersection::new(s, 3.5);
-        assert_eq!(i.object, s);
+        let i = Intersection::new(s.clone(), 3.5);
+        assert_eq!(&i.object, &s);
         assert_eq!(i.t, 3.5);
     }
 
@@ -145,18 +145,18 @@ mod tests {
         let s0 = Sphere::default_boxed();
         let s1 = Sphere::default_boxed();
         let mut inters = Intersections::new();
-        let i1 = Intersection::new(s0, 1.0);
-        let i2 = Intersection::new(s0, 2.0);
-        let i3 = Intersection::new(s1, 1.0);
-        let i4 = Intersection::new(s1, 2.0);
+        let i1 = Intersection::new(s0.clone(), 1.0);
+        let i2 = Intersection::new(s0.clone(), 2.0);
+        let i3 = Intersection::new(s1.clone(), 1.0);
+        let i4 = Intersection::new(s1.clone(), 2.0);
         inters.push(i1);
         inters.push(i2);
         inters.push(i3);
         inters.push(i4);
-        assert_eq!(inters[0].object, s0);
-        assert_eq!(inters[1].object, s0);
-        assert_eq!(inters[2].object, s1);
-        assert_eq!(inters[3].object, s1);
+        assert_eq!(&inters[0].object, &s0);
+        assert_eq!(&inters[1].object, &s0);
+        assert_eq!(&inters[2].object, &s1);
+        assert_eq!(&inters[3].object, &s1);
     }
 
     #[test]
@@ -164,26 +164,26 @@ mod tests {
         let s = Sphere::default_boxed();
         let mut inters = Intersections::new();
 
-        let i1 = Intersection::new(s, 1.0);
-        let i2 = Intersection::new(s, 2.0);
-        inters.push(i1);
+        let i1 = Intersection::new(s.clone(), 1.0);
+        let i2 = Intersection::new(s.clone(), 2.0);
+        inters.push(i1.clone());
         inters.push(i2);
         inters.sort();
         let i = inters.hit();
         assert_eq!(Some(&i1), i);
         inters.clear();
 
-        let i1 = Intersection::new(s, -1.0);
-        let i2 = Intersection::new(s, 1.0);
+        let i1 = Intersection::new(s.clone(), -1.0);
+        let i2 = Intersection::new(s.clone(), 1.0);
         inters.push(i1);
-        inters.push(i2);
+        inters.push(i2.clone());
         inters.sort();
         let i = inters.hit();
         assert_eq!(Some(&i2), i);
         inters.clear();
 
-        let i1 = Intersection::new(s, -2.0);
-        let i2 = Intersection::new(s, -1.0);
+        let i1 = Intersection::new(s.clone(), -2.0);
+        let i2 = Intersection::new(s.clone(), -1.0);
         inters.push(i1);
         inters.push(i2);
         inters.sort();
@@ -191,14 +191,14 @@ mod tests {
         assert_eq!(None, i);
         inters.clear();
 
-        let i1 = Intersection::new(s, 5.0);
-        let i2 = Intersection::new(s, 7.0);
-        let i3 = Intersection::new(s, -3.0);
-        let i4 = Intersection::new(s, 2.0);
+        let i1 = Intersection::new(s.clone(), 5.0);
+        let i2 = Intersection::new(s.clone(), 7.0);
+        let i3 = Intersection::new(s.clone(), -3.0);
+        let i4 = Intersection::new(s.clone(), 2.0);
         inters.push(i1);
         inters.push(i2);
         inters.push(i3);
-        inters.push(i4);
+        inters.push(i4.clone());
         inters.sort();
         let i = inters.hit();
         assert_eq!(Some(&i4), i);
@@ -215,24 +215,24 @@ mod tests {
         let s = Sphere::default_boxed();
         let i = Intersection::new(s, 4.0);
         let comps = IntersectionComps::new(&i, &r);
-        assert_eq!(comps.t, i.t);
-        assert_eq!(comps.object, i.object);
-        assert_eq!(comps.point, Vec4::new_point(0.0, 0.0, -1.0));
+        assert_eq!(comps._t, i.t);
+        assert_eq!(&comps.object, &i.object);
+        assert_eq!(comps._point, Vec4::new_point(0.0, 0.0, -1.0));
         assert_eq!(comps.eye_vec, Vec4::new_vec(0.0, 0.0, -1.0));
         assert_eq!(comps.normal, Vec4::new_vec(0.0, 0.0, -1.0));
-        assert_eq!(comps.inside, false);
+        assert_eq!(comps._inside, false);
 
         let r = Ray::new(&Vec4::POINT_ZERO, &Vec4::new_vec(0.0, 0.0, 1.0));
 
         let s = Sphere::default_boxed();
         let i = Intersection::new(s, 1.0);
         let comps = IntersectionComps::new(&i, &r);
-        assert_eq!(comps.t, i.t);
-        assert_eq!(comps.object, i.object);
-        assert_eq!(comps.point, Vec4::new_point(0.0, 0.0, 1.0));
+        assert_eq!(comps._t, i.t);
+        assert_eq!(&comps.object, &i.object);
+        assert_eq!(comps._point, Vec4::new_point(0.0, 0.0, 1.0));
         assert_eq!(comps.eye_vec, Vec4::new_vec(0.0, 0.0, -1.0));
         assert_eq!(comps.normal, Vec4::new_vec(0.0, 0.0, -1.0));
-        assert_eq!(comps.inside, true);
+        assert_eq!(comps._inside, true);
     }
 
     #[test]
@@ -246,6 +246,6 @@ mod tests {
         let i = Intersection::new(s, 5.0);
         let comps = IntersectionComps::new(&i, &r);
         assert!(comps.over_point.z < -EPSILON / 2.0);
-        assert!(comps.point.z > comps.over_point.z);
+        assert!(comps._point.z > comps.over_point.z);
     }
 }

@@ -140,7 +140,7 @@ mod tests {
         // Outside intersection
         let mut w = World::default();
         let r = Ray::new(&Vec4::new_point(0.0, 0.0, -5.0), &Vec4::VEC_Z_ONE);
-        let i = Intersection::new(w.objects[0], 4.0);
+        let i = Intersection::new(w.objects[0].clone(), 4.0);
         let comps = IntersectionComps::new(&i, &r);
         let color = w.shade_hit(&comps);
         assert_eq!(Color::rgb(0.38066, 0.47583, 0.2855), color);
@@ -148,7 +148,7 @@ mod tests {
         //Inside intersection
         w.lights[0] = PointLight::new(Vec4::new_point(0.0, 0.25, 0.0), Color::WHITE);
         let r = Ray::new(&Vec4::POINT_ZERO, &Vec4::VEC_Z_ONE);
-        let i = Intersection::new(w.objects[1], 0.5);
+        let i = Intersection::new(w.objects[1].clone(), 0.5);
         let comps = IntersectionComps::new(&i, &r);
         let color = w.shade_hit(&comps);
         assert_eq!(Color::rgb(0.90498, 0.90498, 0.90498), color);
@@ -166,7 +166,7 @@ mod tests {
         s.set_transform(Mat4::translation(0.0, 0.0, 10.0));
         w.add_object(s);
         let ray = Ray::new(&Vec4::new_point(0.0, 0.0, 5.0), &Vec4::VEC_Z_ONE);
-        let i = Intersection::new(w.objects[1], 4.0);
+        let i = Intersection::new(w.objects[1].clone(), 4.0);
         let comps = IntersectionComps::new(&i, &ray);
         assert_eq!(Color::rgb(0.1, 0.1, 0.1), w.shade_hit(&comps));
     }

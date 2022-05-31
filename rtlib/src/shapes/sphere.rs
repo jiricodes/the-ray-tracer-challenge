@@ -4,12 +4,14 @@ use crate::math::matrix::Mat4;
 use crate::math::vec4::Vec4;
 use crate::ray::Ray;
 use crate::shapes::{BoxShape, Shape};
+use crate::util::uid;
 
 use std::any::Any;
 use std::fmt::Debug;
 
 #[derive(Debug, Clone)]
 pub struct Sphere {
+    uid: usize,
     pub transform: Mat4,
     pub inverse_transform: Mat4,
     pub material: Material,
@@ -17,7 +19,9 @@ pub struct Sphere {
 
 impl PartialEq for Sphere {
     fn eq(&self, other: &Self) -> bool {
-        self.transform == other.transform && self.material == other.material
+        self.transform == other.transform
+            && self.material == other.material
+            && self.uid == other.uid
     }
 }
 
@@ -54,7 +58,7 @@ impl Shape for Sphere {
     }
 
     fn local_normal_at(&self, local_point: Vec4) -> Vec4 {
-        (local_point - Vec4::POINT_ZERO).normalize()
+        local_point - Vec4::POINT_ZERO
     }
     fn local_intersect(&self, local_ray: Ray) -> Intersections {
         let sphere_to_ray = local_ray.origin - Vec4::POINT_ZERO;
@@ -85,6 +89,7 @@ impl Sphere {
         let transform = transform.unwrap_or_default();
         let inverse_transform = transform.inverse().unwrap();
         Self {
+            uid: uid::fetch_uid(),
             transform,
             material: material.unwrap_or_default(),
             inverse_transform,
@@ -103,6 +108,7 @@ impl Sphere {
 impl Default for Sphere {
     fn default() -> Self {
         Self {
+            uid: uid::fetch_uid(),
             transform: Mat4::default(),
             inverse_transform: Mat4::default().inverse().unwrap(),
             material: Material::default(),
@@ -113,7 +119,7 @@ impl Default for Sphere {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use std::f64::consts::PI;
+    use std::f64::consts::{PI, SQRT_2};
 
     #[test]
     fn basic() {
@@ -127,7 +133,7 @@ mod tests {
 
     #[test]
     fn ray_intersect() {
-        let mut s = Sphere::default();
+        let s = Sphere::default();
 
         // 2 points of intersection
         let mut r = Ray::new(
@@ -165,16 +171,18 @@ mod tests {
         assert_eq!(xs[0].t, -6.0);
         assert_eq!(xs[1].t, -4.0);
 
-        // After transformation
-        s.transform = Mat4::scaling(2.0, 2.0, 2.0);
-        r.origin = Vec4::new_point(0.0, 0.0, -5.0);
-        r.direction = Vec4::new_vec(0.0, 0.0, 1.0);
+        // After transformation p69
+        let s = Sphere::new(Some(Mat4::scaling(2.0, 2.0, 2.0)), None);
+        let r = Ray::new(
+            &Vec4::new_point(0.0, 0.0, -5.0),
+            &Vec4::new_vec(0.0, 0.0, 1.0),
+        );
         let xs = s.intersect(&r);
         assert_eq!(xs.len(), 2);
         assert_eq!(xs[0].t, 3.0);
         assert_eq!(xs[1].t, 7.0);
 
-        s.transform = Mat4::translation(5.0, 0.0, 0.0);
+        let s = Sphere::new(Some(Mat4::translation(5.0, 0.0, 0.0)), None);
         let xs = s.intersect(&r);
         assert_eq!(xs.len(), 0);
     }
@@ -210,16 +218,21 @@ mod tests {
         assert_eq!(exp, n);
         assert_eq!(n, n.normalize());
 
-        let mut s = Sphere::default();
+        let s = Sphere::new(Some(Mat4::translation(0.0, 1.0, 0.0)), None);
 
-        s.transform = Mat4::translation(0.0, 1.0, 0.0);
         let p = Vec4::new_point(0.0, 1.70711, -0.70711);
         let exp = Vec4::new_vec(0.0, 0.70711, -0.70711);
         let n = s.normal_at(p);
         assert_eq!(exp, n);
+    }
 
-        s.transform = Mat4::scaling(1.0, 0.5, 1.0) * Mat4::rotation_z(PI / 5.0);
-        let p = Vec4::new_point(0.0, 2f64.sqrt() / 2.0, -2f64.sqrt() / 2.0);
+    #[test]
+    fn normal_at_scaled_rotated() {
+        let s = Sphere::new(
+            Some(Mat4::scaling(1.0, 0.5, 1.0) * Mat4::rotation_z(PI / 5.0)),
+            None,
+        );
+        let p = Vec4::new_point(0.0, SQRT_2 / 2.0, -SQRT_2 / 2.0);
         let exp = Vec4::new_vec(0.0, 0.97014, -0.24254);
         let n = s.normal_at(p);
         assert_eq!(exp, n);

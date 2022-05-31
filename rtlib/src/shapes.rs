@@ -32,9 +32,9 @@ pub trait Shape: Any + Debug {
 
     fn normal_at(&self, world_point: Vec4) -> Vec4 {
         let object_normal = self.local_normal_at(self.inverse_transformation() * world_point);
-        let mut world_normal = self.inverse_transformation() * object_normal;
+        let mut world_normal = self.inverse_transformation().transpose() * object_normal;
         world_normal.w = 0.0;
-        world_normal
+        world_normal.normalize()
     }
 }
 
