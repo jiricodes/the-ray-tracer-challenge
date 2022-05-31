@@ -22,7 +22,7 @@ pub fn render(camera: &Camera, world: &World) -> Canvas {
 mod tests {
     use super::*;
     use crate::color::Color;
-    use crate::vec4::Vec4;
+    use crate::math::vec4::Vec4;
     use std::f32::consts::PI;
 
     #[test]

@@ -5,15 +5,18 @@ pub use crate::color::Color;
 pub use crate::intersection::Intersection;
 pub use crate::light::PointLight;
 pub use crate::material::Material;
-pub use crate::matrix::Mat4;
+pub use crate::math::matrix::Mat4;
+pub use crate::math::vec4::Vec4;
 pub use crate::ray::Ray;
-pub use crate::sphere::Sphere;
-pub use crate::vec4::Vec4;
+pub use crate::shapes::sphere::Sphere;
 pub use crate::world::World;
+
+// Traits
+pub use crate::object::Object;
 
 // functions
 pub use crate::render::render;
 
 // Consts
-pub use crate::epsilon::EPSILON;
+pub use crate::math::EPSILON;
 pub use std::f32::consts::PI;

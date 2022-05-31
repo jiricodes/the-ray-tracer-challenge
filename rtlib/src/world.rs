@@ -2,10 +2,11 @@ use crate::color::Color;
 use crate::intersection::{IntersectionComps, Intersections};
 use crate::light::PointLight;
 use crate::material::Material;
-use crate::matrix::Mat4;
+use crate::math::matrix::Mat4;
+use crate::math::vec4::Vec4;
+use crate::object::Object;
 use crate::ray::Ray;
-use crate::sphere::Sphere;
-use crate::vec4::Vec4;
+use crate::shapes::sphere::Sphere;
 
 pub struct World {
     pub objects: Vec<Sphere>,

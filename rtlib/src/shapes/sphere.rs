@@ -1,9 +1,10 @@
 use crate::intersection::{Intersection, Intersections};
 use crate::material::Material;
-use crate::matrix::Mat4;
+use crate::math::matrix::Mat4;
+use crate::math::vec4::Vec4;
+use crate::object::Object;
 use crate::ray::Ray;
 use crate::util::uid;
-use crate::vec4::Vec4;
 
 #[derive(Debug, PartialEq)]
 pub struct Sphere {
@@ -21,17 +22,19 @@ impl Sphere {
         }
     }
 
-    pub fn with_material(material: Material) -> Self {
+    pub fn get_uid(&self) -> usize {
+        self.uid
+    }
+}
+
+impl Object for Sphere {
+    fn with_material(material: Material) -> Self {
         let mut new = Self::new();
         new.material = material;
         new
     }
 
-    pub fn get_uid(&self) -> usize {
-        self.uid
-    }
-
-    pub fn intersect<'a>(&'a self, ray: &Ray) -> Intersections {
+    fn intersect<'a>(&'a self, ray: &Ray) -> Intersections {
         let ray = ray.transform(
             &self
                 .transform
@@ -54,12 +57,11 @@ impl Sphere {
         ret
     }
 
-    pub fn transform(&mut self, m: &Mat4) {
+    fn transform(&mut self, m: &Mat4) {
         self.transform = m * self.transform;
     }
 
-    /// Assumes p on the surface
-    pub fn normal_at(&self, p: &Vec4) -> Vec4 {
+    fn normal_at(&self, p: &Vec4) -> Vec4 {
         let it = self
             .transform
             .inverse()

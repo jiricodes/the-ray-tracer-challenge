@@ -1,6 +1,6 @@
-use crate::matrix::Mat4;
+use crate::math::matrix::Mat4;
+use crate::math::vec4::Vec4;
 use crate::ray::Ray;
-use crate::vec4::Vec4;
 
 pub struct Camera {
     height: u32,

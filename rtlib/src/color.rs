@@ -1,4 +1,4 @@
-use crate::epsilon::EPSILON;
+use crate::math::EPSILON;
 use std::cmp::PartialEq;
 use std::ops::{Add, Div, Mul, Sub};
 

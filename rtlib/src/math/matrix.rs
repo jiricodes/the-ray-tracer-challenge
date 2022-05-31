@@ -1,4 +1,4 @@
-use crate::vec4::Vec4;
+use crate::math::vec4::Vec4;
 use std::ops::Mul;
 
 #[derive(Debug, Clone, Copy, PartialEq)]
@@ -346,7 +346,7 @@ impl From<[[f32; 3]; 3]> for Mat3 {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::epsilon::EPSILON;
+    use crate::math::EPSILON;
     use std::f32::consts::PI;
 
     #[test]
