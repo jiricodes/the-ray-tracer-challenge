@@ -5,17 +5,17 @@ use crate::ray::Ray;
 pub struct Camera {
     height: u32,
     width: u32,
-    fov: f32,
+    fov: f64,
     transform: Mat4,
-    pixel_size: f32,
-    half_height: f32,
-    half_width: f32,
+    pixel_size: f64,
+    half_height: f64,
+    half_width: f64,
 }
 
 impl Camera {
-    pub fn new(width: u32, height: u32, fov: f32) -> Self {
+    pub fn new(width: u32, height: u32, fov: f64) -> Self {
         let half_view = (fov / 2.0).tan();
-        let aspect = width as f32 / height as f32;
+        let aspect = width as f64 / height as f64;
         let (half_width, half_height) = if aspect < 1.0 {
             (half_view * aspect, half_view)
         } else {
@@ -26,7 +26,7 @@ impl Camera {
             width,
             fov,
             transform: Mat4::IDENTITY,
-            pixel_size: (half_width * 2.0) / width as f32,
+            pixel_size: (half_width * 2.0) / width as f64,
             half_height,
             half_width,
         }
@@ -45,8 +45,8 @@ impl Camera {
     }
 
     pub fn ray_for_pixel(&self, x: u32, y: u32) -> Ray {
-        let x_offset = (x as f32 + 0.5) * self.pixel_size;
-        let y_offset = (y as f32 + 0.5) * self.pixel_size;
+        let x_offset = (x as f64 + 0.5) * self.pixel_size;
+        let y_offset = (y as f64 + 0.5) * self.pixel_size;
 
         let world_x = self.half_width - x_offset;
         let world_y = self.half_height - y_offset;
@@ -69,7 +69,8 @@ impl Camera {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use std::f32::consts::PI;
+    use crate::epsilon::EPSILON;
+    use std::f64::consts::PI;
 
     #[test]
     fn basic() {
@@ -80,10 +81,10 @@ mod tests {
         assert_eq!(camera.transform, Mat4::IDENTITY);
 
         let camera = Camera::new(200, 125, PI / 2.0);
-        assert_eq!(camera.pixel_size, 0.01);
+        assert!((camera.pixel_size - 0.01).abs() < EPSILON);
 
         let camera = Camera::new(125, 200, PI / 2.0);
-        assert_eq!(camera.pixel_size, 0.01);
+        assert!((camera.pixel_size - 0.01).abs() < EPSILON);
     }
 
     #[test]
@@ -103,7 +104,7 @@ mod tests {
         assert_eq!(r.origin, Vec4::new_point(0.0, 2.0, -5.0));
         assert_eq!(
             r.direction,
-            Vec4::new_vec(2f32.sqrt() / 2.0, 0.0, -2f32.sqrt() / 2.0)
+            Vec4::new_vec(2f64.sqrt() / 2.0, 0.0, -2f64.sqrt() / 2.0)
         );
     }
 }

@@ -19,4 +19,4 @@ pub use crate::render::render;
 
 // Consts
 pub use crate::math::EPSILON;
-pub use std::f32::consts::PI;
+pub use std::f64::consts::PI;

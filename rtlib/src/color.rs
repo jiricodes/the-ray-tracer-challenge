@@ -4,14 +4,14 @@ use std::ops::{Add, Div, Mul, Sub};
 
 #[derive(Debug, Copy, Clone)]
 pub struct Color {
-    pub r: f32,
-    pub g: f32,
-    pub b: f32,
+    pub r: f64,
+    pub g: f64,
+    pub b: f64,
 }
 
 impl Color {
     /// Our minimum error tollerance
-    const _EPSILON: f32 = 0.00001;
+    const _EPSILON: f64 = 0.00001;
     pub const BLACK: Self = Self {
         r: 0.0,
         g: 0.0,
@@ -38,7 +38,7 @@ impl Color {
         b: 1.0,
     };
 
-    pub fn rgb(r: f32, g: f32, b: f32) -> Self {
+    pub fn rgb(r: f64, g: f64, b: f64) -> Self {
         Self { r, g, b }
     }
 
@@ -143,9 +143,9 @@ impl Mul<&Color> for &Color {
     }
 }
 
-impl Mul<f32> for Color {
+impl Mul<f64> for Color {
     type Output = Color;
-    fn mul(self, rhs: f32) -> Self::Output {
+    fn mul(self, rhs: f64) -> Self::Output {
         Self::Output {
             r: self.r * rhs,
             g: self.g * rhs,
@@ -154,9 +154,9 @@ impl Mul<f32> for Color {
     }
 }
 
-impl Mul<f32> for &Color {
+impl Mul<f64> for &Color {
     type Output = Color;
-    fn mul(self, rhs: f32) -> Self::Output {
+    fn mul(self, rhs: f64) -> Self::Output {
         Self::Output {
             r: self.r * rhs,
             g: self.g * rhs,
@@ -167,11 +167,11 @@ impl Mul<f32> for &Color {
 
 impl<T> Div<T> for Color
 where
-    T: Into<f32>,
+    T: Into<f64>,
 {
     type Output = Color;
     fn div(self, rhs: T) -> Self::Output {
-        let m: f32 = rhs.into();
+        let m: f64 = rhs.into();
         if m == 0.0 {
             panic!("Cannot divide by zero-valued!");
         }
@@ -185,11 +185,11 @@ where
 
 impl<T> Div<T> for &Color
 where
-    T: Into<f32>,
+    T: Into<f64>,
 {
     type Output = Color;
     fn div(self, rhs: T) -> Self::Output {
-        let m: f32 = rhs.into();
+        let m: f64 = rhs.into();
         if m == 0.0 {
             panic!("Cannot divide by zero-valued!");
         }
@@ -213,7 +213,7 @@ mod tests {
 
         // minimum error check
         let v = p.clone();
-        p.b += Color::_EPSILON;
+        p.b += EPSILON;
         assert_ne!(v, p, "Minimum error check");
     }
 

@@ -103,7 +103,7 @@ impl Default for Sphere {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use std::f32::consts::PI;
+    use std::f64::consts::PI;
 
     #[test]
     fn basic() {
@@ -194,8 +194,8 @@ mod tests {
         let exp = Vec4::new_vec(0.0, 0.0, 1.0);
         assert_eq!(exp, s.normal_at(p));
 
-        let p = Vec4::new_point(3f32.sqrt() / 3.0, 3f32.sqrt() / 3.0, 3f32.sqrt() / 3.0);
-        let exp = Vec4::new_vec(3f32.sqrt() / 3.0, 3f32.sqrt() / 3.0, 3f32.sqrt() / 3.0);
+        let p = Vec4::new_point(3f64.sqrt() / 3.0, 3f64.sqrt() / 3.0, 3f64.sqrt() / 3.0);
+        let exp = Vec4::new_vec(3f64.sqrt() / 3.0, 3f64.sqrt() / 3.0, 3f64.sqrt() / 3.0);
         let n = s.normal_at(p);
         assert_eq!(exp, n);
         assert_eq!(n, n.normalize());
@@ -209,7 +209,7 @@ mod tests {
         assert_eq!(exp, n);
 
         s.transform = Mat4::scaling(1.0, 0.5, 1.0) * Mat4::rotation_z(PI / 5.0);
-        let p = Vec4::new_point(0.0, 2f32.sqrt() / 2.0, -2f32.sqrt() / 2.0);
+        let p = Vec4::new_point(0.0, 2f64.sqrt() / 2.0, -2f64.sqrt() / 2.0);
         let exp = Vec4::new_vec(0.0, 0.97014, -0.24254);
         let n = s.normal_at(p);
         assert_eq!(exp, n);

@@ -1,4 +1,5 @@
 use crate::color::Color;
+use crate::epsilon::EPSILON;
 use crate::light::PointLight;
 use crate::math::vec4::Vec4;
 use crate::ray::Ray;
@@ -8,11 +9,11 @@ use crate::shapes::Shape;
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub struct Intersection<'a> {
     pub object: &'a Sphere,
-    pub t: f32,
+    pub t: f64,
 }
 
 impl<'a> Intersection<'a> {
-    pub fn new(object: &'a Sphere, t: f32) -> Self {
+    pub fn new(object: &'a Sphere, t: f64) -> Self {
         Self { object, t }
     }
 }
@@ -59,12 +60,13 @@ impl<'a> Intersections<'a> {
 /// Collection of precomputed values of an intersection.
 #[derive(Debug)]
 pub struct IntersectionComps<'a> {
-    t: f32,
+    t: f64,
     object: &'a Sphere,
     point: Vec4,
     eye_vec: Vec4,
     normal: Vec4,
     inside: bool,
+    over_point: Vec4,
 }
 
 impl<'a> IntersectionComps<'a> {
@@ -77,7 +79,6 @@ impl<'a> IntersectionComps<'a> {
             inside = true;
             n = -n;
         }
-
         Self {
             t: i.t,
             object: i.object,
@@ -85,19 +86,29 @@ impl<'a> IntersectionComps<'a> {
             eye_vec: e,
             normal: n,
             inside,
+            over_point: p + (n * EPSILON),
         }
     }
 
-    pub fn lighting(&self, light: &PointLight) -> Color {
-        self.object
-            .material
-            .lighting(&self.point, light, &self.eye_vec, &self.normal)
+    pub fn lighting(&self, light: &PointLight, in_shadow: bool) -> Color {
+        self.object.material.lighting(
+            &self.over_point,
+            light,
+            &self.eye_vec,
+            &self.normal,
+            in_shadow,
+        )
+    }
+
+    pub fn get_overpoint(&self) -> &Vec4 {
+        &self.over_point
     }
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::matrix::Mat4;
 
     #[test]
     fn basic_inter() {
@@ -200,5 +211,19 @@ mod tests {
         assert_eq!(comps.eye_vec, Vec4::new_vec(0.0, 0.0, -1.0));
         assert_eq!(comps.normal, Vec4::new_vec(0.0, 0.0, -1.0));
         assert_eq!(comps.inside, true);
+    }
+
+    #[test]
+    fn overpoint() {
+        let r = Ray::new(
+            &Vec4::new_point(0.0, 0.0, -5.0),
+            &Vec4::new_vec(0.0, 0.0, 1.0),
+        );
+        let mut s = Sphere::new();
+        s.transform = Mat4::translation(0.0, 0.0, 1.0);
+        let i = Intersection::new(&s, 5.0);
+        let comps = IntersectionComps::new(&i, &r);
+        assert!(comps.over_point.z < -EPSILON / 2.0);
+        assert!(comps.point.z > comps.over_point.z);
     }
 }

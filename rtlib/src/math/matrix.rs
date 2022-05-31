@@ -3,7 +3,7 @@ use std::ops::Mul;
 
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub struct Mat4 {
-    pub data: [[f32; 4]; 4],
+    pub data: [[f64; 4]; 4],
 }
 
 impl Mat4 {
@@ -18,11 +18,11 @@ impl Mat4 {
             [0.0, 0.0, 0.0, 1.0],
         ],
     };
-    pub fn get(&self, r: usize, c: usize) -> f32 {
+    pub fn get(&self, r: usize, c: usize) -> f64 {
         self.data[r][c]
     }
 
-    pub fn set(&mut self, r: usize, c: usize, val: f32) {
+    pub fn set(&mut self, r: usize, c: usize, val: f64) {
         self.data[r][c] = val;
     }
 
@@ -49,12 +49,12 @@ impl Mat4 {
         ret
     }
 
-    pub fn minor(&self, r: usize, c: usize) -> f32 {
+    pub fn minor(&self, r: usize, c: usize) -> f64 {
         let sm = self.submatrix(r, c);
         sm.determinant()
     }
 
-    pub fn cofactor(&self, r: usize, c: usize) -> f32 {
+    pub fn cofactor(&self, r: usize, c: usize) -> f64 {
         if (r + c) % 2 == 1 {
             self.minor(r, c) * -1.0
         } else {
@@ -62,7 +62,7 @@ impl Mat4 {
         }
     }
 
-    pub fn determinant(&self) -> f32 {
+    pub fn determinant(&self) -> f64 {
         self.data[0][0] * self.cofactor(0, 0)
             + self.data[0][1] * self.cofactor(0, 1)
             + self.data[0][2] * self.cofactor(0, 2)
@@ -83,7 +83,7 @@ impl Mat4 {
         Ok(ret)
     }
 
-    pub fn translation(x: f32, y: f32, z: f32) -> Self {
+    pub fn translation(x: f64, y: f64, z: f64) -> Self {
         let mut ret = Self::IDENTITY;
         ret.data[0][3] = x;
         ret.data[1][3] = y;
@@ -91,7 +91,7 @@ impl Mat4 {
         ret
     }
 
-    pub fn scaling(x: f32, y: f32, z: f32) -> Self {
+    pub fn scaling(x: f64, y: f64, z: f64) -> Self {
         let mut ret = Self::IDENTITY;
         ret.data[0][0] = x;
         ret.data[1][1] = y;
@@ -99,7 +99,7 @@ impl Mat4 {
         ret
     }
 
-    pub fn rotation_x(r: f32) -> Self {
+    pub fn rotation_x(r: f64) -> Self {
         let mut ret = Self::IDENTITY;
         ret.data[1][1] = r.cos();
         ret.data[1][2] = -r.sin();
@@ -108,7 +108,7 @@ impl Mat4 {
         ret
     }
 
-    pub fn rotation_y(r: f32) -> Self {
+    pub fn rotation_y(r: f64) -> Self {
         let mut ret = Self::IDENTITY;
         ret.data[0][0] = r.cos();
         ret.data[2][0] = -r.sin();
@@ -117,7 +117,7 @@ impl Mat4 {
         ret
     }
 
-    pub fn rotation_z(r: f32) -> Self {
+    pub fn rotation_z(r: f64) -> Self {
         let mut ret = Self::IDENTITY;
         ret.data[0][0] = r.cos();
         ret.data[0][1] = -r.sin();
@@ -126,7 +126,7 @@ impl Mat4 {
         ret
     }
 
-    pub fn shearing(xy: f32, xz: f32, yx: f32, yz: f32, zx: f32, zy: f32) -> Self {
+    pub fn shearing(xy: f64, xz: f64, yx: f64, yz: f64, zx: f64, zy: f64) -> Self {
         let mut ret = Self::IDENTITY;
         ret.data[0][1] = xy;
         ret.data[0][2] = xz;
@@ -160,8 +160,8 @@ impl Default for Mat4 {
     }
 }
 
-impl From<[[f32; 4]; 4]> for Mat4 {
-    fn from(data: [[f32; 4]; 4]) -> Self {
+impl From<[[f64; 4]; 4]> for Mat4 {
+    fn from(data: [[f64; 4]; 4]) -> Self {
         Self { data }
     }
 }
@@ -240,7 +240,7 @@ impl Mul<Mat4> for &Mat4 {
 impl Mul<Vec4> for Mat4 {
     type Output = Vec4;
     fn mul(self, rhs: Vec4) -> Self::Output {
-        let mut ret: [[f32; 1]; 4] = [[0.0]; 4];
+        let mut ret: [[f64; 1]; 4] = [[0.0]; 4];
         for r in 0..4 {
             ret[r][0] = self.data[r][0] * rhs.x
                 + self.data[r][1] * rhs.y
@@ -254,7 +254,7 @@ impl Mul<Vec4> for Mat4 {
 impl Mul<Vec4> for &Mat4 {
     type Output = Vec4;
     fn mul(self, rhs: Vec4) -> Self::Output {
-        let mut ret: [[f32; 1]; 4] = [[0.0]; 4];
+        let mut ret: [[f64; 1]; 4] = [[0.0]; 4];
         for r in 0..4 {
             ret[r][0] = self.data[r][0] * rhs.x
                 + self.data[r][1] * rhs.y
@@ -267,46 +267,46 @@ impl Mul<Vec4> for &Mat4 {
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct Mat2 {
-    pub data: [[f32; 2]; 2],
+    pub data: [[f64; 2]; 2],
 }
 
 impl Mat2 {
     pub const ZERO: Self = Self {
         data: [[0.0; 2]; 2],
     };
-    pub fn get(&self, r: usize, c: usize) -> f32 {
+    pub fn get(&self, r: usize, c: usize) -> f64 {
         self.data[r][c]
     }
 
-    pub fn set(&mut self, r: usize, c: usize, val: f32) {
+    pub fn set(&mut self, r: usize, c: usize, val: f64) {
         self.data[r][c] = val;
     }
 
-    pub fn determinant(&self) -> f32 {
+    pub fn determinant(&self) -> f64 {
         self.data[0][0] * self.data[1][1] - self.data[0][1] * self.data[1][0]
     }
 }
 
-impl From<[[f32; 2]; 2]> for Mat2 {
-    fn from(data: [[f32; 2]; 2]) -> Self {
+impl From<[[f64; 2]; 2]> for Mat2 {
+    fn from(data: [[f64; 2]; 2]) -> Self {
         Self { data }
     }
 }
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct Mat3 {
-    pub data: [[f32; 3]; 3],
+    pub data: [[f64; 3]; 3],
 }
 
 impl Mat3 {
     pub const ZERO: Self = Self {
         data: [[0.0; 3]; 3],
     };
-    pub fn get(&self, r: usize, c: usize) -> f32 {
+    pub fn get(&self, r: usize, c: usize) -> f64 {
         self.data[r][c]
     }
 
-    pub fn set(&mut self, r: usize, c: usize, val: f32) {
+    pub fn set(&mut self, r: usize, c: usize, val: f64) {
         self.data[r][c] = val;
     }
 
@@ -323,12 +323,12 @@ impl Mat3 {
         ret
     }
 
-    pub fn minor(&self, r: usize, c: usize) -> f32 {
+    pub fn minor(&self, r: usize, c: usize) -> f64 {
         let sm = self.submatrix(r, c);
         sm.determinant()
     }
 
-    pub fn cofactor(&self, r: usize, c: usize) -> f32 {
+    pub fn cofactor(&self, r: usize, c: usize) -> f64 {
         if (r + c) % 2 == 1 {
             self.minor(r, c) * -1.0
         } else {
@@ -336,15 +336,15 @@ impl Mat3 {
         }
     }
 
-    pub fn determinant(&self) -> f32 {
+    pub fn determinant(&self) -> f64 {
         self.data[0][0] * self.cofactor(0, 0)
             + self.data[0][1] * self.cofactor(0, 1)
             + self.data[0][2] * self.cofactor(0, 2)
     }
 }
 
-impl From<[[f32; 3]; 3]> for Mat3 {
-    fn from(data: [[f32; 3]; 3]) -> Self {
+impl From<[[f64; 3]; 3]> for Mat3 {
+    fn from(data: [[f64; 3]; 3]) -> Self {
         Self { data }
     }
 }
@@ -353,7 +353,7 @@ impl From<[[f32; 3]; 3]> for Mat3 {
 mod tests {
     use super::*;
     use crate::math::EPSILON;
-    use std::f32::consts::PI;
+    use std::f64::consts::PI;
 
     #[test]
     fn new_mat4() {
@@ -766,7 +766,7 @@ mod tests {
         let half_quarter = Mat4::rotation_x(PI / 4.0);
         let full_quarter = Mat4::rotation_x(PI / 2.0);
         assert_eq!(
-            Vec4::new_point(0.0, 2f32.sqrt() / 2.0, 2f32.sqrt() / 2.0),
+            Vec4::new_point(0.0, 2f64.sqrt() / 2.0, 2f64.sqrt() / 2.0),
             half_quarter * p
         );
         let exp = Vec4::new_point(0.0, 0.0, 1.0);
@@ -777,7 +777,7 @@ mod tests {
         let half_quarter = Mat4::rotation_y(PI / 4.0);
         let full_quarter = Mat4::rotation_y(PI / 2.0);
         assert_eq!(
-            Vec4::new_point(2f32.sqrt() / 2.0, 0.0, 2f32.sqrt() / 2.0),
+            Vec4::new_point(2f64.sqrt() / 2.0, 0.0, 2f64.sqrt() / 2.0),
             half_quarter * p
         );
         let exp = Vec4::new_point(1.0, 0.0, 0.0);
@@ -788,7 +788,7 @@ mod tests {
         let half_quarter = Mat4::rotation_z(PI / 4.0);
         let full_quarter = Mat4::rotation_z(PI / 2.0);
         assert_eq!(
-            Vec4::new_point(-2f32.sqrt() / 2.0, 2f32.sqrt() / 2.0, 0.0),
+            Vec4::new_point(-2f64.sqrt() / 2.0, 2f64.sqrt() / 2.0, 0.0),
             half_quarter * p
         );
         let exp = Vec4::new_point(-1.0, 0.0, 0.0);

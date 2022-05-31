@@ -1,67 +1,6 @@
 #![allow(dead_code)]
 use rtlib::prelude::*;
 
-fn ch05() {
-    // Canwas
-    let size = 1024.0;
-    let height = size as u32;
-    let width = size as u32;
-    let mut canvas = Canvas::new(width, height);
-
-    // Sphere
-    // let mut s = Sphere::new();
-    // s.transform = Mat4::scaling(1.0, 1.0, 1.0);
-    // s.material.color = Color::WHITE;
-    // s.material.shininess = 100.0;
-    // s.material.ambient = 0.5;
-    // s.material.specular = 1.0;
-
-    // Light
-    let light = PointLight {
-        position: Vec4::new_point(-100.0, 100.0, -100.0),
-        intensity: Color::rgb(0.7, 0.7, 1.0),
-    };
-
-    let mut w = World::default();
-    w.objects[0].transform = Mat4::translation(1.5, 0.0, 0.0);
-    w.lights[0] = light;
-
-    // Ray
-    let ray_origin = Vec4::new_point(0.0, 0.0, -40.0);
-
-    // Wall
-    let wall_z = 10.0;
-    let wall_size = 7.0;
-
-    // World settings
-    let pixel_size = wall_size / size;
-    let half = wall_size / 2.0;
-
-    for y in 0..height {
-        let world_y = half - pixel_size * y as f32;
-        for x in 0..width {
-            let world_x = -half + pixel_size * x as f32;
-
-            let position = Vec4::new_point(world_x, world_y, wall_z);
-
-            let ray_dir = (position - ray_origin).normalize();
-            let r = Ray::new(&ray_origin, &ray_dir);
-
-            let mut ixs = w.intersect(&r);
-            let hit = ixs.hit();
-            if hit.is_some() {
-                let h = hit.unwrap();
-                let p = r.position(h.t);
-                let n = h.object.normal_at(&p);
-                let eye = -r.direction;
-                let color = h.object.material.lighting(&p, &w.lights[0], &eye, &n);
-                let _ = canvas.put_pixel(x, y, color);
-            }
-        }
-    }
-    println!("{}", canvas.into_ppm_string());
-}
-
 fn main() {
     // Plane material
     let mut plane_material = Material::default();
@@ -111,6 +50,11 @@ fn main() {
     small_sphere.material.diffuse = 0.7;
     small_sphere.material.specular = 0.3;
 
+    // small sphere in shadows
+    let mut shadow_sphere = Sphere::new();
+    shadow_sphere.transform = Mat4::translation(-1.0, 0.15, -0.6) * Mat4::scaling(0.15, 0.15, 0.15);
+    shadow_sphere.material.color = Color::rgb(1.0, 0.3, 0.1);
+
     // Light
     let light = PointLight::new(Vec4::new_point(-10.0, 10.0, -10.0), Color::WHITE);
 
@@ -122,6 +66,7 @@ fn main() {
     w.add_object(large_sphere);
     w.add_object(medium_sphere);
     w.add_object(small_sphere);
+    w.add_object(shadow_sphere);
     w.add_light(light);
 
     // Camera
