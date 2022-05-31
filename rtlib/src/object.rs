@@ -1,15 +1,22 @@
-use crate::intersection::Intersections;
-use crate::material::Material;
-use crate::math::matrix::Mat4;
-use crate::math::vec4::Vec4;
-use crate::ray::Ray;
+use crate::shapes::Shape;
+use crate::util::uid;
 
-pub trait Object {
-    fn with_material(material: Material) -> Self;
+pub struct Object<T>
+where
+    T: Shape,
+{
+    uid: usize,
+    shape: T,
+}
 
-    fn intersect<'a>(&'a self, ray: &Ray) -> Intersections;
-
-    fn transform(&mut self, m: &Mat4);
-
-    fn normal_at(&self, p: &Vec4) -> Vec4;
+impl<T> Object<T>
+where
+    T: Shape,
+{
+    pub fn new(shape: T) -> Self {
+        Self {
+            uid: uid::fetch_uid(),
+            shape,
+        }
+    }
 }

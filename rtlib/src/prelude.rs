@@ -12,7 +12,7 @@ pub use crate::shapes::sphere::Sphere;
 pub use crate::world::World;
 
 // Traits
-pub use crate::object::Object;
+pub use crate::shapes::Shape;
 
 // functions
 pub use crate::render::render;

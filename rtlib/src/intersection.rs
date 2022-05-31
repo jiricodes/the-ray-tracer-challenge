@@ -1,9 +1,9 @@
 use crate::color::Color;
 use crate::light::PointLight;
 use crate::math::vec4::Vec4;
-use crate::object::Object;
 use crate::ray::Ray;
 use crate::shapes::sphere::Sphere;
+use crate::shapes::Shape;
 
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub struct Intersection<'a> {

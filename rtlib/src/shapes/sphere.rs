@@ -2,48 +2,60 @@ use crate::intersection::{Intersection, Intersections};
 use crate::material::Material;
 use crate::math::matrix::Mat4;
 use crate::math::vec4::Vec4;
-use crate::object::Object;
 use crate::ray::Ray;
-use crate::util::uid;
+use crate::shapes::{BoxShape, Shape};
 
-#[derive(Debug, PartialEq)]
+use std::any::Any;
+use std::fmt::Debug;
+
+#[derive(Debug, Clone)]
 pub struct Sphere {
-    uid: usize,
     pub transform: Mat4,
+    pub inverse_transform: Mat4,
     pub material: Material,
 }
 
-impl Sphere {
-    pub fn new() -> Self {
-        Self {
-            uid: uid::fetch_uid(),
-            transform: Mat4::IDENTITY,
-            material: Material::default(),
-        }
-    }
-
-    pub fn get_uid(&self) -> usize {
-        self.uid
+impl PartialEq for Sphere {
+    fn eq(&self, other: &Self) -> bool {
+        self.transform == other.transform && self.material == other.material
     }
 }
 
-impl Object for Sphere {
-    fn with_material(material: Material) -> Self {
-        let mut new = Self::new();
-        new.material = material;
-        new
+impl Shape for Sphere {
+    fn as_any(&self) -> &dyn Any {
+        self
+    }
+    fn box_clone(&self) -> BoxShape {
+        Box::new((*self).clone())
+    }
+    fn box_eq(&self, other: &dyn Any) -> bool {
+        other.downcast_ref::<Self>().map_or(false, |a| self == a)
     }
 
-    fn intersect<'a>(&'a self, ray: &Ray) -> Intersections {
-        let ray = ray.transform(
-            &self
-                .transform
-                .inverse()
-                .expect("Object transform matrix is not invertible"),
-        );
-        let sphere_to_ray = ray.origin - Vec4::POINT_ZERO;
-        let a = ray.direction.dot(&ray.direction);
-        let b = 2.0 * ray.direction.dot(&sphere_to_ray);
+    fn set_material(&mut self, material: Material) {
+        self.material = material;
+    }
+    fn get_material(&self) -> &Material {
+        &self.material
+    }
+
+    fn transform(&mut self, m: &Mat4) {
+        self.transform = m * self.transform;
+    }
+    fn transformation(&self) -> &Mat4 {
+        &self.transform
+    }
+    fn inverse_transformation(&self) -> &Mat4 {
+        &self.inverse_transform
+    }
+
+    fn local_normal_at(&self, local_point: Vec4) -> Vec4 {
+        (local_point - Vec4::POINT_ZERO).normalize()
+    }
+    fn local_intersect(&self, local_ray: Ray) -> Intersections {
+        let sphere_to_ray = local_ray.origin - Vec4::POINT_ZERO;
+        let a = local_ray.direction.dot(&local_ray.direction);
+        let b = 2.0 * local_ray.direction.dot(&sphere_to_ray);
         let c = sphere_to_ray.dot(&sphere_to_ray) - 1.0;
         let discriminant = b * b - 4.0 * a * c;
         let mut ret: Intersections = Intersections::new();
@@ -56,21 +68,35 @@ impl Object for Sphere {
         ret.push(i);
         ret
     }
+}
 
-    fn transform(&mut self, m: &Mat4) {
-        self.transform = m * self.transform;
+impl Sphere {
+    pub fn new(transform: Option<Mat4>, material: Option<Material>) -> Self {
+        let transform = transform.unwrap_or_default();
+        let inverse_transform = transform.inverse().unwrap();
+        Self {
+            transform,
+            material: material.unwrap_or_default(),
+            inverse_transform,
+        }
     }
 
-    fn normal_at(&self, p: &Vec4) -> Vec4 {
-        let it = self
-            .transform
-            .inverse()
-            .expect("Object transform matrix is not invertible");
-        let op = it * *p;
-        let on = (op - Vec4::POINT_ZERO).normalize();
-        let mut normal = it.transpose() * on;
-        normal.w = 0.0;
-        normal.normalize()
+    pub fn new_boxed(transform: Option<Mat4>, material: Option<Material>) -> BoxShape {
+        Box::new(Self::new(transform, material))
+    }
+
+    pub fn default_boxed() -> BoxShape {
+        Box::new(Self::default())
+    }
+}
+
+impl Default for Sphere {
+    fn default() -> Self {
+        Self {
+            transform: Mat4::default(),
+            inverse_transform: Mat4::default().inverse().unwrap(),
+            material: Material::default(),
+        }
     }
 }
 
@@ -81,9 +107,9 @@ mod tests {
 
     #[test]
     fn basic() {
-        let a = Sphere::new();
-        let b = Sphere::new();
-        assert_ne!(a.uid, b.uid);
+        let a = Sphere::default();
+        let b = Sphere::default();
+        assert_ne!(&a, &b);
         assert_eq!(a.transform, Mat4::IDENTITY);
         assert_eq!(a.material, Material::default());
         assert_eq!(a.material.ambient, 0.1);
@@ -91,7 +117,7 @@ mod tests {
 
     #[test]
     fn ray_intersect() {
-        let mut s = Sphere::new();
+        let mut s = Sphere::default();
 
         // 2 points of intersection
         let mut r = Ray::new(
@@ -145,7 +171,7 @@ mod tests {
 
     #[test]
     fn transform() {
-        let mut s = Sphere::new();
+        let mut s = Sphere::default();
         let t = Mat4::translation(2.0, 3.0, 4.0);
         s.transform(&t);
         assert_eq!(t, s.transform);
@@ -155,37 +181,37 @@ mod tests {
 
     #[test]
     fn normal_at() {
-        let s = Sphere::new();
+        let s = Sphere::default();
         let p = Vec4::new_point(1.0, 0.0, 0.0);
         let exp = Vec4::new_vec(1.0, 0.0, 0.0);
-        assert_eq!(exp, s.normal_at(&p));
+        assert_eq!(exp, s.normal_at(p));
 
         let p = Vec4::new_point(0.0, 1.0, 0.0);
         let exp = Vec4::new_vec(0.0, 1.0, 0.0);
-        assert_eq!(exp, s.normal_at(&p));
+        assert_eq!(exp, s.normal_at(p));
 
         let p = Vec4::new_point(0.0, 0.0, 1.0);
         let exp = Vec4::new_vec(0.0, 0.0, 1.0);
-        assert_eq!(exp, s.normal_at(&p));
+        assert_eq!(exp, s.normal_at(p));
 
         let p = Vec4::new_point(3f32.sqrt() / 3.0, 3f32.sqrt() / 3.0, 3f32.sqrt() / 3.0);
         let exp = Vec4::new_vec(3f32.sqrt() / 3.0, 3f32.sqrt() / 3.0, 3f32.sqrt() / 3.0);
-        let n = s.normal_at(&p);
+        let n = s.normal_at(p);
         assert_eq!(exp, n);
         assert_eq!(n, n.normalize());
 
-        let mut s = Sphere::new();
+        let mut s = Sphere::default();
 
         s.transform = Mat4::translation(0.0, 1.0, 0.0);
         let p = Vec4::new_point(0.0, 1.70711, -0.70711);
         let exp = Vec4::new_vec(0.0, 0.70711, -0.70711);
-        let n = s.normal_at(&p);
+        let n = s.normal_at(p);
         assert_eq!(exp, n);
 
         s.transform = Mat4::scaling(1.0, 0.5, 1.0) * Mat4::rotation_z(PI / 5.0);
         let p = Vec4::new_point(0.0, 2f32.sqrt() / 2.0, -2f32.sqrt() / 2.0);
         let exp = Vec4::new_vec(0.0, 0.97014, -0.24254);
-        let n = s.normal_at(&p);
+        let n = s.normal_at(p);
         assert_eq!(exp, n);
     }
 }

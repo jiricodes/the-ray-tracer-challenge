@@ -154,6 +154,12 @@ impl Mat4 {
     }
 }
 
+impl Default for Mat4 {
+    fn default() -> Self {
+        Self::IDENTITY
+    }
+}
+
 impl From<[[f32; 4]; 4]> for Mat4 {
     fn from(data: [[f32; 4]; 4]) -> Self {
         Self { data }

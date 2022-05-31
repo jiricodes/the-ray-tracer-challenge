@@ -7,9 +7,10 @@ use crate::math::vec4::Vec4;
 use crate::object::Object;
 use crate::ray::Ray;
 use crate::shapes::sphere::Sphere;
+use crate::shapes::Shape;
 
 pub struct World {
-    pub objects: Vec<Sphere>,
+    pub objects: Vec<Object<T>>,
     pub lights: Vec<PointLight>,
 }
 
