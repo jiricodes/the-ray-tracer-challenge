@@ -8,26 +8,24 @@ fn main() {
     plane_material.specular = 0.0;
 
     // Floor sphere
-    let floor = Sphere::new_boxed(Some(Mat4::scaling(10.0, 0.01, 10.0)), Some(plane_material));
+    let floor = shapes::Plane::new_boxed(None, Some(plane_material));
 
     // Left Wall
-    let left_wall = Sphere::new_boxed(
+    let left_wall = shapes::Plane::new_boxed(
         Some(
             Mat4::translation(0.0, 0.0, 5.0)
                 * Mat4::rotation_y(-PI / 4.0)
-                * Mat4::rotation_x(PI / 2.0)
-                * Mat4::scaling(10.0, 0.01, 10.0),
+                * Mat4::rotation_x(PI / 2.0),
         ),
         Some(plane_material),
     );
 
     // Right wall
-    let right_wall = Sphere::new_boxed(
+    let right_wall = shapes::Plane::new_boxed(
         Some(
             Mat4::translation(0.0, 0.0, 5.0)
                 * Mat4::rotation_y(PI / 4.0)
-                * Mat4::rotation_x(PI / 2.0)
-                * Mat4::scaling(10.0, 0.01, 10.0),
+                * Mat4::rotation_x(PI / 2.0),
         ),
         Some(plane_material),
     );
@@ -38,7 +36,7 @@ fn main() {
     material.diffuse = 0.7;
     material.specular = 0.3;
     let transform = Mat4::translation(-0.5, 1.0, 0.5);
-    let large_sphere = Sphere::new_boxed(Some(transform), Some(material));
+    let large_sphere = shapes::Sphere::new_boxed(Some(transform), Some(material));
 
     // medium sphere
     let transform = Mat4::translation(1.5, 0.5, -0.5) * Mat4::scaling(0.5, 0.5, 0.5);
@@ -46,7 +44,7 @@ fn main() {
     material.color = Color::rgb(0.5, 1.0, 0.1);
     material.diffuse = 0.4;
     material.shininess = 50.0;
-    let medium_sphere = Sphere::new_boxed(Some(transform), Some(material));
+    let medium_sphere = shapes::Sphere::new_boxed(Some(transform), Some(material));
 
     // small sphere
     let transform = Mat4::translation(-1.5, 0.33, -0.75) * Mat4::scaling(0.33, 0.33, 0.33);
@@ -54,13 +52,13 @@ fn main() {
     material.color = Color::rgb(1.0, 0.8, 0.1);
     material.diffuse = 0.7;
     material.specular = 0.3;
-    let small_sphere = Sphere::new_boxed(Some(transform), Some(material));
+    let small_sphere = shapes::Sphere::new_boxed(Some(transform), Some(material));
 
     // small sphere in shadows
     let transform = Mat4::translation(-1.0, 0.15, -0.6) * Mat4::scaling(0.15, 0.15, 0.15);
     let mut material = Material::default();
     material.color = Color::rgb(1.0, 0.3, 0.1);
-    let shadow_sphere = Sphere::new_boxed(Some(transform), Some(material));
+    let shadow_sphere = shapes::Sphere::new_boxed(Some(transform), Some(material));
 
     // Light
     let light = PointLight::new(Vec4::new_point(-10.0, 10.0, -10.0), Color::WHITE);
