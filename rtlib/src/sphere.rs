@@ -2,11 +2,8 @@ use crate::intersection::{Intersection, Intersections};
 use crate::material::Material;
 use crate::matrix::Mat4;
 use crate::ray::Ray;
+use crate::util::uid;
 use crate::vec4::Vec4;
-
-use std::sync::atomic::{AtomicUsize, Ordering};
-
-static SPHERE_COUNTER: AtomicUsize = AtomicUsize::new(0);
 
 #[derive(Debug, PartialEq)]
 pub struct Sphere {
@@ -18,7 +15,7 @@ pub struct Sphere {
 impl Sphere {
     pub fn new() -> Self {
         Self {
-            uid: SPHERE_COUNTER.fetch_add(1, Ordering::SeqCst),
+            uid: uid::fetch_uid(),
             transform: Mat4::IDENTITY,
             material: Material::default(),
         }
