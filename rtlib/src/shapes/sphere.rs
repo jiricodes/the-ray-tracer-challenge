@@ -19,9 +19,9 @@ pub struct Sphere {
 
 impl PartialEq for Sphere {
     fn eq(&self, other: &Self) -> bool {
-        self.transform == other.transform
+        self.uid == other.uid
+            && self.transform == other.transform
             && self.material == other.material
-            && self.uid == other.uid
     }
 }
 
@@ -110,7 +110,7 @@ impl Default for Sphere {
         Self {
             uid: uid::fetch_uid(),
             transform: Mat4::default(),
-            inverse_transform: Mat4::default().inverse().unwrap(),
+            inverse_transform: Mat4::default(),
             material: Material::default(),
         }
     }

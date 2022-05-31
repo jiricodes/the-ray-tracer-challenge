@@ -1,6 +1,9 @@
 pub mod sphere;
 pub use sphere::Sphere;
 
+pub mod plane;
+pub use plane::Plane;
+
 use crate::intersection::Intersections;
 use crate::material::Material;
 use crate::math::matrix::Mat4;

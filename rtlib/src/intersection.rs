@@ -22,7 +22,7 @@ impl Intersection {
     }
 
     pub fn precomputed(&self, ray: Ray) -> IntersectionComps {
-        unimplemented!()
+        unimplemented!("Think of moving IntersectionComps::new here")
     }
 }
 
@@ -44,6 +44,12 @@ impl Index<usize> for Intersections {
     }
 }
 
+impl From<Vec<Intersection>> for Intersections {
+    fn from(xs: Vec<Intersection>) -> Self {
+        Self { inner: xs }
+    }
+}
+
 impl Intersections {
     pub fn new() -> Self {
         Self {
@@ -56,6 +62,10 @@ impl Intersections {
 
     pub fn len(&self) -> usize {
         self.inner.len()
+    }
+
+    pub fn is_empty(&self) -> bool {
+        self.inner.is_empty()
     }
 
     pub fn sort(&mut self) {
