@@ -69,7 +69,7 @@ impl Camera {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::epsilon::EPSILON;
+    use crate::math::EPSILON;
     use std::f64::consts::PI;
 
     #[test]

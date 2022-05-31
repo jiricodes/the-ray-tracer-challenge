@@ -42,6 +42,10 @@ impl Shape for Sphere {
     fn transform(&mut self, m: &Mat4) {
         self.transform = m * self.transform;
     }
+    fn set_transform(&mut self, transform: Mat4) {
+        self.transform = transform;
+        self.inverse_transform = self.transform.inverse().unwrap();
+    }
     fn transformation(&self) -> &Mat4 {
         &self.transform
     }
@@ -62,9 +66,15 @@ impl Shape for Sphere {
         if discriminant < 0.0 {
             return ret;
         }
-        let i = Intersection::new(&self, (-b - discriminant.sqrt()) / (2.0 * a));
+        let i = Intersection::new(
+            Box::new(self.clone()),
+            (-b - discriminant.sqrt()) / (2.0 * a),
+        );
         ret.push(i);
-        let i = Intersection::new(&self, (-b + discriminant.sqrt()) / (2.0 * a));
+        let i = Intersection::new(
+            Box::new(self.clone()),
+            (-b + discriminant.sqrt()) / (2.0 * a),
+        );
         ret.push(i);
         ret
     }
@@ -126,15 +136,15 @@ mod tests {
         );
         let xs = s.intersect(&r);
         assert_eq!(xs.len(), 2);
-        assert_eq!(xs.intersections[0].t, 4.0);
-        assert_eq!(xs.intersections[1].t, 6.0);
+        assert_eq!(xs[0].t, 4.0);
+        assert_eq!(xs[1].t, 6.0);
 
         // tangent
         r.origin = Vec4::new_point(0.0, 1.0, -5.0);
         let xs = s.intersect(&r);
         assert_eq!(xs.len(), 2);
-        assert_eq!(xs.intersections[0].t, 5.0);
-        assert_eq!(xs.intersections[1].t, 5.0);
+        assert_eq!(xs[0].t, 5.0);
+        assert_eq!(xs[1].t, 5.0);
 
         // no intersection
         r.origin = Vec4::new_point(0.0, 2.0, -5.0);
@@ -145,15 +155,15 @@ mod tests {
         r.origin = Vec4::new_point(0.0, 0.0, 0.0);
         let xs = s.intersect(&r);
         assert_eq!(xs.len(), 2);
-        assert_eq!(xs.intersections[0].t, -1.0);
-        assert_eq!(xs.intersections[1].t, 1.0);
+        assert_eq!(xs[0].t, -1.0);
+        assert_eq!(xs[1].t, 1.0);
 
         // ray origin "behind" the sphere
         r.origin = Vec4::new_point(0.0, 0.0, 5.0);
         let xs = s.intersect(&r);
         assert_eq!(xs.len(), 2);
-        assert_eq!(xs.intersections[0].t, -6.0);
-        assert_eq!(xs.intersections[1].t, -4.0);
+        assert_eq!(xs[0].t, -6.0);
+        assert_eq!(xs[1].t, -4.0);
 
         // After transformation
         s.transform = Mat4::scaling(2.0, 2.0, 2.0);
@@ -161,8 +171,8 @@ mod tests {
         r.direction = Vec4::new_vec(0.0, 0.0, 1.0);
         let xs = s.intersect(&r);
         assert_eq!(xs.len(), 2);
-        assert_eq!(xs.intersections[0].t, 3.0);
-        assert_eq!(xs.intersections[1].t, 7.0);
+        assert_eq!(xs[0].t, 3.0);
+        assert_eq!(xs[1].t, 7.0);
 
         s.transform = Mat4::translation(5.0, 0.0, 0.0);
         let xs = s.intersect(&r);

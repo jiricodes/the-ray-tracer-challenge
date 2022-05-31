@@ -1,4 +1,5 @@
 pub mod sphere;
+pub use sphere::Sphere;
 
 use crate::intersection::Intersections;
 use crate::material::Material;
@@ -21,6 +22,7 @@ pub trait Shape: Any + Debug {
     fn local_normal_at(&self, local_point: Vec4) -> Vec4;
 
     fn transform(&mut self, m: &Mat4);
+    fn set_transform(&mut self, transformation: Mat4);
     fn transformation(&self) -> &Mat4;
     fn inverse_transformation(&self) -> &Mat4;
 
@@ -37,3 +39,15 @@ pub trait Shape: Any + Debug {
 }
 
 pub type BoxShape = Box<dyn Shape>;
+
+impl Clone for BoxShape {
+    fn clone(&self) -> Self {
+        self.box_clone()
+    }
+}
+
+impl PartialEq for BoxShape {
+    fn eq(&self, other: &BoxShape) -> bool {
+        self.box_eq(other.as_any())
+    }
+}
