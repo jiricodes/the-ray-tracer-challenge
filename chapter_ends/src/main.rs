@@ -21,6 +21,7 @@ fn main() {
     );
 
     // Right wall
+    plane_material.pattern = Some(patterns::StripePattern::default_boxed());
     let right_wall = shapes::Plane::new_boxed(
         Some(
             Mat4::translation(0.0, 0.0, 5.0)
@@ -35,6 +36,10 @@ fn main() {
     material.color = Color::rgb(0.1, 1.0, 0.5);
     material.diffuse = 0.7;
     material.specular = 0.3;
+    material.pattern = Some(patterns::StripePattern::new_boxed(
+        vec![Color::WHITE, material.color],
+        Some(Mat4::rotation_x(PI / 4.0) * Mat4::scaling(0.1, 1.0, 1.0)),
+    ));
     let transform = Mat4::translation(-0.5, 1.0, 0.5);
     let large_sphere = shapes::Sphere::new_boxed(Some(transform), Some(material));
 

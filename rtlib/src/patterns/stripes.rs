@@ -78,6 +78,7 @@ impl Default for StripePattern {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::shapes::Sphere;
 
     #[test]
     fn basic() {
@@ -155,5 +156,31 @@ mod tests {
             pattern.local_pattern_at(Vec4::new_point(2.9, 1.0, 0.0)),
             Color::GREEN
         );
+    }
+
+    #[test]
+    fn on_scaled() {
+        let object = Sphere::new(Some(Mat4::scaling(2.0, 2.0, 2.0)), None);
+        let pattern = StripePattern::default();
+        let c = pattern.pattern_at(&object, Vec4::new_point(1.5, 0.0, 0.0));
+        assert_eq!(c, Color::WHITE);
+    }
+
+    #[test]
+    fn transformed_pattern() {
+        let object = Sphere::default();
+        let mut pattern = StripePattern::default();
+        pattern.set_transform(Mat4::scaling(2.0, 2.0, 2.0));
+        let c = pattern.pattern_at(&object, Vec4::new_point(1.5, 0.0, 0.0));
+        assert_eq!(c, Color::WHITE);
+    }
+
+    #[test]
+    fn transformed_on_transformed() {
+        let object = Sphere::new(Some(Mat4::scaling(2.0, 2.0, 2.0)), None);
+        let mut pattern = StripePattern::default();
+        pattern.set_transform(Mat4::translation(0.5, 0.0, 0.0));
+        let c = pattern.pattern_at(&object, Vec4::new_point(2.5, 0.0, 0.0));
+        assert_eq!(c, Color::WHITE);
     }
 }
