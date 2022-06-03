@@ -10,5 +10,6 @@ pub mod math;
 pub mod ray;
 pub mod render;
 pub mod shapes;
+pub mod texture;
 pub mod util;
 pub mod world;
