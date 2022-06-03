@@ -81,13 +81,13 @@ mod tests {
     #[test]
     fn stripes_y_axis() {
         let pattern = StripePattern::default();
-        assert_eq!(pattern.pattern_at(Vec4::POINT_ZERO), Color::WHITE);
+        assert_eq!(pattern.local_pattern_at(Vec4::POINT_ZERO), Color::WHITE);
         assert_eq!(
-            pattern.pattern_at(Vec4::new_point(0.0, 1.0, 0.0)),
+            pattern.local_pattern_at(Vec4::new_point(0.0, 1.0, 0.0)),
             Color::WHITE
         );
         assert_eq!(
-            pattern.pattern_at(Vec4::new_point(0.0, 2.0, 0.0)),
+            pattern.local_pattern_at(Vec4::new_point(0.0, 2.0, 0.0)),
             Color::WHITE
         );
     }
@@ -95,13 +95,13 @@ mod tests {
     #[test]
     fn stripes_z_axis() {
         let pattern = StripePattern::default();
-        assert_eq!(pattern.pattern_at(Vec4::POINT_ZERO), Color::WHITE);
+        assert_eq!(pattern.local_pattern_at(Vec4::POINT_ZERO), Color::WHITE);
         assert_eq!(
-            pattern.pattern_at(Vec4::new_point(0.0, 0.0, 1.0)),
+            pattern.local_pattern_at(Vec4::new_point(0.0, 0.0, 1.0)),
             Color::WHITE
         );
         assert_eq!(
-            pattern.pattern_at(Vec4::new_point(0.0, 0.0, 2.0)),
+            pattern.local_pattern_at(Vec4::new_point(0.0, 0.0, 2.0)),
             Color::WHITE
         );
     }
@@ -109,25 +109,25 @@ mod tests {
     #[test]
     fn stripes_alter() {
         let pattern = StripePattern::default();
-        assert_eq!(pattern.pattern_at(Vec4::POINT_ZERO), Color::WHITE);
+        assert_eq!(pattern.local_pattern_at(Vec4::POINT_ZERO), Color::WHITE);
         assert_eq!(
-            pattern.pattern_at(Vec4::new_point(0.9, 1.0, 0.0)),
+            pattern.local_pattern_at(Vec4::new_point(0.9, 1.0, 0.0)),
             Color::WHITE
         );
         assert_eq!(
-            pattern.pattern_at(Vec4::new_point(1.0, 0.0, 0.0)),
+            pattern.local_pattern_at(Vec4::new_point(1.0, 0.0, 0.0)),
             Color::BLACK
         );
         assert_eq!(
-            pattern.pattern_at(Vec4::new_point(-0.1, 0.0, 0.0)),
+            pattern.local_pattern_at(Vec4::new_point(-0.1, 0.0, 0.0)),
             Color::BLACK
         );
         assert_eq!(
-            pattern.pattern_at(Vec4::new_point(-1.0, 0.0, 0.0)),
+            pattern.local_pattern_at(Vec4::new_point(-1.0, 0.0, 0.0)),
             Color::BLACK
         );
         assert_eq!(
-            pattern.pattern_at(Vec4::new_point(-1.1, 0.0, 0.0)),
+            pattern.local_pattern_at(Vec4::new_point(-1.1, 0.0, 0.0)),
             Color::WHITE
         );
     }
@@ -136,15 +136,15 @@ mod tests {
     fn three_stripes() {
         let pattern = StripePattern::new(vec![Color::RED, Color::BLUE, Color::GREEN], None);
         assert_eq!(
-            pattern.pattern_at(Vec4::new_point(0.0, 1.0, 0.0)),
+            pattern.local_pattern_at(Vec4::new_point(0.0, 1.0, 0.0)),
             Color::RED
         );
         assert_eq!(
-            pattern.pattern_at(Vec4::new_point(1.3, 1.0, 0.0)),
+            pattern.local_pattern_at(Vec4::new_point(1.3, 1.0, 0.0)),
             Color::BLUE
         );
         assert_eq!(
-            pattern.pattern_at(Vec4::new_point(2.9, 1.0, 0.0)),
+            pattern.local_pattern_at(Vec4::new_point(2.9, 1.0, 0.0)),
             Color::GREEN
         );
     }

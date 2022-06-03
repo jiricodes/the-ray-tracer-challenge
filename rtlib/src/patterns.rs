@@ -1,6 +1,7 @@
 use crate::color::Color;
 use crate::math::matrix::Mat4;
 use crate::math::vec4::Vec4;
+use crate::shapes::Shape;
 
 use std::any::Any;
 use std::fmt::Debug;
@@ -20,8 +21,9 @@ pub trait Pattern: Any + Debug {
 
     fn local_pattern_at(&self, local_point: Vec4) -> Color;
 
-    fn pattern_at(&self, world_point: Vec4) -> Color {
-        let local_point = self.inverse_transformation() * world_point;
+    fn pattern_at(&self, object: &dyn Shape, world_point: Vec4) -> Color {
+        let object_point = object.inverse_transformation() * world_point;
+        let local_point = self.inverse_transformation() * object_point;
         self.local_pattern_at(local_point)
     }
 }

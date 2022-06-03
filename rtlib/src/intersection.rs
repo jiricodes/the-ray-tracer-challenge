@@ -123,6 +123,7 @@ impl IntersectionComps {
 
     pub fn lighting(&self, light: &PointLight, in_shadow: bool) -> Color {
         self.object.get_material().lighting(
+            &*(self.object),
             &self.over_point,
             light,
             &self.eye_vec,

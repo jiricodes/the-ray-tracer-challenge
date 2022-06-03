@@ -188,7 +188,7 @@ mod tests {
         // hit small from inside of big
         let mut m = Material::default();
         m.ambient = 1.0;
-        w.objects[0].set_material(m);
+        w.objects[0].set_material(m.clone());
         w.objects[1].set_material(m);
         let r = Ray::new(&Vec4::new_point(0.0, 0.0, 0.75), &-Vec4::VEC_Z_ONE);
         let color = w.color_at(&r);

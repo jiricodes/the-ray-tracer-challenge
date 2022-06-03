@@ -8,7 +8,7 @@ fn main() {
     plane_material.specular = 0.0;
 
     // Floor sphere
-    let floor = shapes::Plane::new_boxed(None, Some(plane_material));
+    let floor = shapes::Plane::new_boxed(None, Some(plane_material.clone()));
 
     // Left Wall
     let left_wall = shapes::Plane::new_boxed(
@@ -17,7 +17,7 @@ fn main() {
                 * Mat4::rotation_y(-PI / 4.0)
                 * Mat4::rotation_x(PI / 2.0),
         ),
-        Some(plane_material),
+        Some(plane_material.clone()),
     );
 
     // Right wall
