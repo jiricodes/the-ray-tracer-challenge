@@ -24,6 +24,14 @@ impl StripePattern {
                 .expect("Pattern transform"),
         }
     }
+
+    pub fn new_boxed(colors: Vec<Color>, transform: Option<Mat4>) -> BoxPattern {
+        Box::new(Self::new(colors, transform))
+    }
+
+    pub fn default_boxed() -> BoxPattern {
+        Box::new(Self::default())
+    }
 }
 
 impl Pattern for StripePattern {

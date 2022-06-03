@@ -103,6 +103,7 @@ impl Default for Material {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::patterns;
     use crate::shapes::Sphere;
 
     #[test]
@@ -177,5 +178,37 @@ mod tests {
             Color::rgb(0.1, 0.1, 0.1),
             m.lighting(&s, &p, &light, &eye_vec, &normal, true)
         );
+    }
+
+    #[test]
+    fn pattern_lighting() {
+        let mut m = Material::default();
+        m.pattern = Some(patterns::StripePattern::default_boxed());
+        m.ambient = 1.0;
+        m.diffuse = 0.0;
+        m.specular = 0.0;
+        let object = Sphere::default();
+        let eye_vec = Vec4::new_vec(0.0, 0.0, -1.0);
+        let normal = Vec4::new_vec(0.0, 0.0, -1.0);
+        let light = PointLight::new(Vec4::new_point(0.0, 0.0, -10.0), Color::WHITE);
+        let c1 = m.lighting(
+            &object,
+            &Vec4::new_point(0.9, 0.0, 0.0),
+            &light,
+            &eye_vec,
+            &normal,
+            false,
+        );
+        let c2 = m.lighting(
+            &object,
+            &Vec4::new_point(1.1, 0.0, 0.0),
+            &light,
+            &eye_vec,
+            &normal,
+            false,
+        );
+
+        assert_eq!(c1, Color::WHITE);
+        assert_eq!(c2, Color::BLACK);
     }
 }
