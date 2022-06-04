@@ -9,6 +9,9 @@ use std::fmt::Debug;
 pub mod stripes;
 pub use stripes::StripePattern;
 
+pub mod gradient;
+pub use gradient::GradientPattern;
+
 pub trait Pattern: Any + Debug {
     fn as_any(&self) -> &dyn Any;
     fn box_clone(&self) -> BoxPattern;
