@@ -15,6 +15,9 @@ pub use gradient::GradientPattern;
 pub mod ring;
 pub use ring::RingPattern;
 
+pub mod checkers;
+pub use checkers::CheckersPattern;
+
 pub trait Pattern: Any + Debug {
     fn as_any(&self) -> &dyn Any;
     fn box_clone(&self) -> BoxPattern;
