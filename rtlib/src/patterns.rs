@@ -12,6 +12,9 @@ pub use stripes::StripePattern;
 pub mod gradient;
 pub use gradient::GradientPattern;
 
+pub mod ring;
+pub use ring::RingPattern;
+
 pub trait Pattern: Any + Debug {
     fn as_any(&self) -> &dyn Any;
     fn box_clone(&self) -> BoxPattern;
