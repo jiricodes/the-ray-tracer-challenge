@@ -12,6 +12,7 @@ pub struct Material {
     pub specular: f64,
     pub shininess: f64,
     pub pattern: Option<BoxPattern>,
+    pub reflectivness: f64,
 }
 
 impl Material {
@@ -21,6 +22,7 @@ impl Material {
         diffuse: f64,
         specular: f64,
         shininess: f64,
+        reflectivness: f64,
         pattern: Option<BoxPattern>,
     ) -> Self {
         Self {
@@ -30,6 +32,7 @@ impl Material {
             specular,
             shininess,
             pattern,
+            reflectivness,
         }
     }
 
@@ -96,6 +99,7 @@ impl Default for Material {
             specular: 0.9,
             shininess: 200.0,
             pattern: None,
+            reflectivness: 0.0,
         }
     }
 }
@@ -115,6 +119,7 @@ mod tests {
         assert_eq!(0.9, m.diffuse);
         assert_eq!(0.9, m.specular);
         assert_eq!(200.0, m.shininess);
+        assert_eq!(0.0, m.reflectivness);
     }
 
     #[test]
