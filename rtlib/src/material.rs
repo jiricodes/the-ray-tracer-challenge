@@ -13,6 +13,8 @@ pub struct Material {
     pub shininess: f64,
     pub pattern: Option<BoxPattern>,
     pub reflectivness: f64,
+    pub transparent: bool,
+    pub refraction: f64,
 }
 
 impl Material {
@@ -24,6 +26,8 @@ impl Material {
         shininess: f64,
         reflectivness: f64,
         pattern: Option<BoxPattern>,
+        transparent: bool,
+        refraction: f64,
     ) -> Self {
         Self {
             color,
@@ -33,6 +37,8 @@ impl Material {
             shininess,
             pattern,
             reflectivness,
+            transparent,
+            refraction,
         }
     }
 
@@ -100,6 +106,8 @@ impl Default for Material {
             shininess: 200.0,
             pattern: None,
             reflectivness: 0.0,
+            transparent: false,
+            refraction: 1.0,
         }
     }
 }
