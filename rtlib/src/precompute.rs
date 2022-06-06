@@ -101,6 +101,12 @@ impl PreCompute {
     pub fn get_material(&self) -> &Material {
         self.object.get_material()
     }
+
+    pub fn get_snells_law_value(&self) -> f64 {
+        let n_ratio = self.n1 / self.n2;
+        let cos_i = self.eye_vec.dot(&self.normal);
+        n_ratio.powi(2) * (1.0 - cos_i.powi(2))
+    }
 }
 
 #[cfg(test)]

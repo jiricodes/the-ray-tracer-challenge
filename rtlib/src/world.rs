@@ -82,6 +82,21 @@ impl World {
         let color = self.color_at(&reflect_ray, max_reflections - 1);
         color * reflectivness
     }
+
+    pub fn refracted_color(&self, comps: &PreCompute, max_reflections: u32) -> Color {
+        let transparency = comps.get_material().transparency;
+        let ref_index = comps.get_material().refractive_index;
+        if transparency <= 0.0 || max_reflections <= 0 {
+            return Color::BLACK;
+        }
+
+        // total internal refraction aka Snell's Law
+        let snell = comps.get_snells_law_value();
+        if snell > 1.0 {
+            return Color::BLACK;
+        }
+        Color::WHITE
+    }
 }
 
 impl Default for World {
@@ -307,5 +322,53 @@ mod tests {
         w.add_object(upper_plane);
         let ray = Ray::new(&Vec4::POINT_ZERO, &Vec4::VEC_Y_ONE);
         let _ = w.color_at(&ray, 5);
+    }
+
+    #[test]
+    fn refract_opaque() {
+        let w = World::default();
+        let r = Ray::new(&Vec4::point(0.0, 0.0, -5.0), &Vec4::VEC_Z_ONE);
+        let xs = Intersections::from(vec![
+            Intersection::new(w.objects[0].clone(), 4.0),
+            Intersection::new(w.objects[0].clone(), 9.0),
+        ]);
+        let comps = xs[0].precomputed(&r, Some(xs.get_inner_ref()));
+        let c = w.refracted_color(&comps, 5);
+        assert_eq!(c, Color::BLACK);
+    }
+
+    #[test]
+    fn refract_glass_no_recursion() {
+        let mut w = World::default();
+        let m = Material::GLASS;
+        w.objects[0].set_material(m);
+        let r = Ray::new(&Vec4::point(0.0, 0.0, -5.0), &Vec4::VEC_Z_ONE);
+        let xs = Intersections::from(vec![
+            Intersection::new(w.objects[0].clone(), 4.0),
+            Intersection::new(w.objects[0].clone(), 9.0),
+        ]);
+        let comps = xs[0].precomputed(&r, Some(xs.get_inner_ref()));
+        let c = w.refracted_color(&comps, 0);
+        assert_eq!(c, Color::BLACK);
+    }
+
+    #[test]
+    fn refract_total_internal_reflection() {
+        let mut w = World::default();
+        let m = Material::GLASS;
+        w.objects[0].set_material(m);
+        let r = Ray::new(&Vec4::point(0.0, 0.0, SQRT_2 / 2.0), &Vec4::VEC_Y_ONE);
+        let xs = Intersections::from(vec![
+            Intersection::new(w.objects[0].clone(), -SQRT_2 / 2.0),
+            Intersection::new(w.objects[0].clone(), SQRT_2 / 2.0),
+        ]);
+        let comps = xs[1].precomputed(&r, Some(xs.get_inner_ref()));
+        let c = w.refracted_color(&comps, 5);
+        assert_eq!(c, Color::BLACK);
+    }
+
+    #[test]
+    fn refracted_color_with_refracted_ray() {
+        let mut w = World::default();
     }
 }
