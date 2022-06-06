@@ -18,6 +18,18 @@ pub struct Material {
 }
 
 impl Material {
+    pub const GLASS: Self = Self {
+        color: Color::WHITE,
+        ambient: 0.1,
+        diffuse: 0.9,
+        specular: 0.9,
+        shininess: 200.0,
+        pattern: None,
+        reflectivness: 0.0,
+        transparency: 1.0,
+        refractive_index: 1.5,
+    };
+
     pub fn new(
         color: Color,
         ambient: f64,
