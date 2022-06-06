@@ -16,6 +16,7 @@ pub struct PreCompute {
     normal: Vec4,
     _inside: bool,
     over_point: Vec4,
+    under_point: Vec4,
     reflect_vec: Vec4,
     n1: f64,
     n2: f64,
@@ -71,6 +72,7 @@ impl PreCompute {
             normal,
             _inside: inside,
             over_point: p + (normal * EPSILON),
+            under_point: p - (normal * EPSILON),
             reflect_vec: r.direction.reflect(&normal),
             n1: n1,
             n2: n2,
@@ -187,5 +189,21 @@ mod tests {
             assert_eq!(comps.n1, exp_n1[i], "N1 at case {}", i);
             assert_eq!(comps.n2, exp_n2[i], "N2 ar case {}", i);
         }
+    }
+
+    #[test]
+    fn underpoint() {
+        let r = Ray::new(&Vec4::point(0.0, 0.0, -5.0), &Vec4::VEC_Z_ONE);
+        let s = Sphere::new_boxed(
+            Some(Mat4::translation(0.0, 0.0, 1.0)),
+            Some(Material::GLASS),
+        );
+
+        let i = Intersection::new(s, 5.0);
+        let xs = Intersections::from(vec![i.clone()]);
+
+        let comps = i.precomputed(&r, Some(xs.get_inner_ref()));
+        assert!(comps.under_point.z > EPSILON / 2.0);
+        assert!(comps._point.z < comps.under_point.z)
     }
 }
