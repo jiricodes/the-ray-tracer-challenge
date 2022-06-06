@@ -19,8 +19,13 @@ impl Intersection {
         Self { object, t }
     }
 
-    pub fn precomputed(&self, ray: &Ray) -> PreCompute {
-        PreCompute::new(&self, ray)
+    pub fn precomputed(&self, ray: &Ray, xs: Option<&Vec<Intersection>>) -> PreCompute {
+        // if xs.is_some() {
+        PreCompute::new(&self, ray, xs)
+        // } else {
+        //     let xs: Vec<Intersection> = vec![self.clone()];
+        //     PreCompute::new(&self, ray, &xs)
+        // }
     }
 }
 
