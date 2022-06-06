@@ -95,15 +95,15 @@ mod tests {
         let pattern = GradientPattern::default();
         assert_eq!(pattern.local_pattern_at(Vec4::POINT_ZERO), Color::WHITE);
         assert_eq!(
-            pattern.local_pattern_at(Vec4::new_point(0.25, 0.0, 0.0)),
+            pattern.local_pattern_at(Vec4::point(0.25, 0.0, 0.0)),
             Color::rgb(0.75, 0.75, 0.75)
         );
         assert_eq!(
-            pattern.local_pattern_at(Vec4::new_point(0.5, 0.0, 0.0)),
+            pattern.local_pattern_at(Vec4::point(0.5, 0.0, 0.0)),
             Color::rgb(0.5, 0.5, 0.5)
         );
         assert_eq!(
-            pattern.local_pattern_at(Vec4::new_point(0.75, 0.0, 0.0)),
+            pattern.local_pattern_at(Vec4::point(0.75, 0.0, 0.0)),
             Color::rgb(0.25, 0.25, 0.25)
         );
     }

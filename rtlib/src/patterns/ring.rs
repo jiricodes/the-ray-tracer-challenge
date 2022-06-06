@@ -95,15 +95,15 @@ mod tests {
         let pattern = RingPattern::default();
         assert_eq!(pattern.local_pattern_at(Vec4::POINT_ZERO), Color::WHITE);
         assert_eq!(
-            pattern.local_pattern_at(Vec4::new_point(1.0, 0.0, 0.0)),
+            pattern.local_pattern_at(Vec4::point(1.0, 0.0, 0.0)),
             Color::BLACK
         );
         assert_eq!(
-            pattern.local_pattern_at(Vec4::new_point(0.0, 0.0, 1.0)),
+            pattern.local_pattern_at(Vec4::point(0.0, 0.0, 1.0)),
             Color::BLACK
         );
         assert_eq!(
-            pattern.local_pattern_at(Vec4::new_point(0.708, 0.0, 0.708)),
+            pattern.local_pattern_at(Vec4::point(0.708, 0.0, 0.708)),
             Color::BLACK
         );
     }
@@ -112,19 +112,19 @@ mod tests {
     fn three_colors() {
         let pattern = RingPattern::new(vec![Color::RED, Color::BLUE, Color::GREEN], None);
         assert_eq!(
-            pattern.local_pattern_at(Vec4::new_point(0.0, 1.0, 0.0)),
+            pattern.local_pattern_at(Vec4::point(0.0, 1.0, 0.0)),
             Color::RED
         );
         assert_eq!(
-            pattern.local_pattern_at(Vec4::new_point(1.3, 1.0, 0.0)),
+            pattern.local_pattern_at(Vec4::point(1.3, 1.0, 0.0)),
             Color::BLUE
         );
         assert_eq!(
-            pattern.local_pattern_at(Vec4::new_point(1.3, 1.0, 1.3)),
+            pattern.local_pattern_at(Vec4::point(1.3, 1.0, 1.3)),
             Color::BLUE
         );
         assert_eq!(
-            pattern.local_pattern_at(Vec4::new_point(1.5, 1.0, 1.5)),
+            pattern.local_pattern_at(Vec4::point(1.5, 1.0, 1.5)),
             Color::GREEN
         );
     }

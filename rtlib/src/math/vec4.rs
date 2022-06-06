@@ -1,3 +1,4 @@
+use crate::math::EPSILON;
 use std::cmp::PartialEq;
 use std::ops::{Add, Div, Mul, Neg, Sub};
 
@@ -10,8 +11,6 @@ pub struct Vec4 {
 }
 
 impl Vec4 {
-    /// Our minimum error tollerance
-    const _EPSILON: f64 = 0.00001;
     pub const ZERO: Self = Self {
         x: 0.0,
         y: 0.0,
@@ -50,11 +49,11 @@ impl Vec4 {
         Self { x, y, z, w }
     }
 
-    pub fn new_point(x: f64, y: f64, z: f64) -> Self {
+    pub fn point(x: f64, y: f64, z: f64) -> Self {
         Self { x, y, z, w: 1.0 }
     }
 
-    pub fn new_vec(x: f64, y: f64, z: f64) -> Self {
+    pub fn vec(x: f64, y: f64, z: f64) -> Self {
         Self { x, y, z, w: 0.0 }
     }
 
@@ -100,7 +99,7 @@ impl Vec4 {
 impl PartialEq<Vec4> for Vec4 {
     fn eq(&self, other: &Vec4) -> bool {
         let a = (self - other).abs();
-        a.x < Vec4::_EPSILON && a.y < Vec4::_EPSILON && a.z < Vec4::_EPSILON && a.w < Vec4::_EPSILON
+        a.x < EPSILON && a.y < EPSILON && a.z < EPSILON && a.w < EPSILON
     }
 }
 
@@ -260,12 +259,12 @@ mod tests {
     use super::*;
     #[test]
     fn point_and_vector() {
-        let p = Vec4::new_point(4.3, -4.2, 3.1);
+        let p = Vec4::point(4.3, -4.2, 3.1);
         assert_eq!(p.x, 4.3);
         assert_eq!(p.y, -4.2);
         assert_eq!(p.z, 3.1);
         assert_eq!(p.w, 1.0);
-        let mut v = Vec4::new_vec(4.3, -4.2, 3.1);
+        let mut v = Vec4::vec(4.3, -4.2, 3.1);
         assert_eq!(v.x, 4.3);
         assert_eq!(v.y, -4.2);
         assert_eq!(v.z, 3.1);
@@ -273,7 +272,7 @@ mod tests {
         assert_ne!(v, p);
 
         // minimum error check
-        v.w += Vec4::_EPSILON;
+        v.w += EPSILON;
         assert_ne!(v, p, "Minimum error check");
     }
 
@@ -287,26 +286,26 @@ mod tests {
     #[test]
     fn subbing() {
         // Point - Point is vector
-        let a = Vec4::new_point(3.0, 2.0, 1.0);
-        let b = Vec4::new_point(5.0, 6.0, 7.0);
-        assert_eq!(Vec4::new_vec(-2.0, -4.0, -6.0), a - b);
+        let a = Vec4::point(3.0, 2.0, 1.0);
+        let b = Vec4::point(5.0, 6.0, 7.0);
+        assert_eq!(Vec4::vec(-2.0, -4.0, -6.0), a - b);
 
         // Point - vec is point
-        let a = Vec4::new_point(3.0, 2.0, 1.0);
-        let b = Vec4::new_vec(5.0, 6.0, 7.0);
-        assert_eq!(Vec4::new_point(-2.0, -4.0, -6.0), a - b);
+        let a = Vec4::point(3.0, 2.0, 1.0);
+        let b = Vec4::vec(5.0, 6.0, 7.0);
+        assert_eq!(Vec4::point(-2.0, -4.0, -6.0), a - b);
 
         // vec - vec is vec
-        let a = Vec4::new_vec(3.0, 2.0, 1.0);
-        let b = Vec4::new_vec(5.0, 6.0, 7.0);
-        assert_eq!(Vec4::new_vec(-2.0, -4.0, -6.0), a - b);
+        let a = Vec4::vec(3.0, 2.0, 1.0);
+        let b = Vec4::vec(5.0, 6.0, 7.0);
+        assert_eq!(Vec4::vec(-2.0, -4.0, -6.0), a - b);
     }
 
     #[test]
     fn multiply() {
         let z = Vec4::ZERO;
-        let v: Vec4 = Vec4::new_vec(1.0, -2.0, 3.0);
-        let e = Vec4::new_vec(-1.0, 2.0, -3.0);
+        let v: Vec4 = Vec4::vec(1.0, -2.0, 3.0);
+        let e = Vec4::vec(-1.0, 2.0, -3.0);
         assert_eq!(e, z - v);
         assert_eq!(e, -v);
         let x = Vec4::new(-2.0, -4.0, -6.0, -8.0);
@@ -325,56 +324,56 @@ mod tests {
 
     #[test]
     fn magnitude() {
-        let v = Vec4::new_vec(1.0, 0.0, 0.0);
+        let v = Vec4::vec(1.0, 0.0, 0.0);
         assert_eq!(1.0, v.magnitude());
-        let v = Vec4::new_vec(0.0, 1.0, 0.0);
+        let v = Vec4::vec(0.0, 1.0, 0.0);
         assert_eq!(1.0, v.magnitude());
-        let v = Vec4::new_vec(0.0, 0.0, 1.0);
+        let v = Vec4::vec(0.0, 0.0, 1.0);
         assert_eq!(1.0, v.magnitude());
-        let v = Vec4::new_vec(1.0, 2.0, 3.0);
+        let v = Vec4::vec(1.0, 2.0, 3.0);
         assert_eq!(14.0f64.sqrt(), v.magnitude());
-        let v = Vec4::new_vec(-1.0, -2.0, -3.0);
+        let v = Vec4::vec(-1.0, -2.0, -3.0);
         assert_eq!(14.0f64.sqrt(), v.magnitude());
     }
 
     #[test]
     fn normalize() {
-        let v = Vec4::new_vec(4.0, 0.0, 0.0);
-        let exp = Vec4::new_vec(1.0, 0.0, 0.0);
+        let v = Vec4::vec(4.0, 0.0, 0.0);
+        let exp = Vec4::vec(1.0, 0.0, 0.0);
         assert_eq!(exp, v.normalize());
 
-        let v = Vec4::new_vec(1.0, 2.0, 3.0);
-        let exp = Vec4::new_vec(1.0 / 14f64.sqrt(), 2.0 / 14f64.sqrt(), 3.0 / 14f64.sqrt());
+        let v = Vec4::vec(1.0, 2.0, 3.0);
+        let exp = Vec4::vec(1.0 / 14f64.sqrt(), 2.0 / 14f64.sqrt(), 3.0 / 14f64.sqrt());
         assert_eq!(exp, v.normalize());
 
-        let v = Vec4::new_vec(1.0, 2.0, 3.0);
+        let v = Vec4::vec(1.0, 2.0, 3.0);
         let v = v.normalize();
-        assert!((1.0 - v.magnitude()).abs() < Vec4::_EPSILON);
+        assert!((1.0 - v.magnitude()).abs() < EPSILON);
     }
 
     #[test]
     fn dot() {
-        let a = Vec4::new_vec(1.0, 2.0, 3.0);
-        let b = Vec4::new_vec(2.0, 3.0, 4.0);
+        let a = Vec4::vec(1.0, 2.0, 3.0);
+        let b = Vec4::vec(2.0, 3.0, 4.0);
         assert_eq!(20.0, a.dot(&b));
     }
 
     #[test]
     fn cross() {
-        let a = Vec4::new_vec(1.0, 2.0, 3.0);
-        let b = Vec4::new_vec(2.0, 3.0, 4.0);
-        assert_eq!(Vec4::new_vec(-1.0, 2.0, -1.0), a.cross(&b));
-        assert_eq!(Vec4::new_vec(1.0, -2.0, 1.0), b.cross(&a));
+        let a = Vec4::vec(1.0, 2.0, 3.0);
+        let b = Vec4::vec(2.0, 3.0, 4.0);
+        assert_eq!(Vec4::vec(-1.0, 2.0, -1.0), a.cross(&b));
+        assert_eq!(Vec4::vec(1.0, -2.0, 1.0), b.cross(&a));
     }
 
     #[test]
     fn reflect() {
-        let v = Vec4::new_vec(1.0, -1.0, 0.0);
-        let n = Vec4::new_vec(0.0, 1.0, 0.0);
-        assert_eq!(Vec4::new_vec(1.0, 1.0, 0.0), v.reflect(&n));
+        let v = Vec4::vec(1.0, -1.0, 0.0);
+        let n = Vec4::vec(0.0, 1.0, 0.0);
+        assert_eq!(Vec4::vec(1.0, 1.0, 0.0), v.reflect(&n));
 
-        let v = Vec4::new_vec(0.0, -1.0, 0.0);
-        let n = Vec4::new_vec(2f64.sqrt() / 2.0, 2f64.sqrt() / 2.0, 0.0);
-        assert_eq!(Vec4::new_vec(1.0, 0.0, 0.0), v.reflect(&n));
+        let v = Vec4::vec(0.0, -1.0, 0.0);
+        let n = Vec4::vec(2f64.sqrt() / 2.0, 2f64.sqrt() / 2.0, 0.0);
+        assert_eq!(Vec4::vec(1.0, 0.0, 0.0), v.reflect(&n));
     }
 }

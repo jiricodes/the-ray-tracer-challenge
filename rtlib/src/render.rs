@@ -29,7 +29,7 @@ mod tests {
     fn basic_render() {
         let w = World::default();
         let mut c = Camera::new(11, 11, PI / 2.0);
-        let from = Vec4::new_point(0.0, 0.0, -5.0);
+        let from = Vec4::point(0.0, 0.0, -5.0);
         let to = Vec4::POINT_ZERO;
         let up = Vec4::VEC_Y_ONE;
         c.view_transform(&from, &to, &up);

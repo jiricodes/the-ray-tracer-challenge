@@ -55,7 +55,7 @@ impl Camera {
             .transform
             .inverse()
             .expect("Camera transform inverse matrix")
-            * Vec4::new_point(world_x, world_y, -1.0);
+            * Vec4::point(world_x, world_y, -1.0);
         let origin = self
             .transform
             .inverse()
@@ -97,14 +97,14 @@ mod tests {
 
         let r = camera.ray_for_pixel(0, 0);
         assert_eq!(r.origin, Vec4::POINT_ZERO);
-        assert_eq!(r.direction, Vec4::new_vec(0.66519, 0.33259, -0.66851));
+        assert_eq!(r.direction, Vec4::vec(0.66519, 0.33259, -0.66851));
 
         camera.transform = Mat4::rotation_y(PI / 4.0) * Mat4::translation(0.0, -2.0, 5.0);
         let r = camera.ray_for_pixel(100, 50);
-        assert_eq!(r.origin, Vec4::new_point(0.0, 2.0, -5.0));
+        assert_eq!(r.origin, Vec4::point(0.0, 2.0, -5.0));
         assert_eq!(
             r.direction,
-            Vec4::new_vec(2f64.sqrt() / 2.0, 0.0, -2f64.sqrt() / 2.0)
+            Vec4::vec(2f64.sqrt() / 2.0, 0.0, -2f64.sqrt() / 2.0)
         );
     }
 }

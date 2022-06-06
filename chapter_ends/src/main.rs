@@ -82,11 +82,8 @@ fn main() {
     let shadow_sphere = shapes::Sphere::new_boxed(Some(transform), Some(material));
 
     // Light
-    let light = PointLight::new(Vec4::new_point(-10.0, 10.0, -10.0), Color::WHITE);
-    let light2 = PointLight::new(
-        Vec4::new_point(10.0, 10.0, -10.0),
-        Color::rgb(0.5, 0.5, 0.5),
-    );
+    let light = PointLight::new(Vec4::point(-10.0, 10.0, -10.0), Color::WHITE);
+    let light2 = PointLight::new(Vec4::point(10.0, 10.0, -10.0), Color::rgb(0.5, 0.5, 0.5));
 
     // world
     let mut w = World::new();
@@ -103,8 +100,8 @@ fn main() {
     // Camera
     let mut camera = Camera::new(1920, 1080, PI / 3.0);
     camera.view_transform(
-        &Vec4::new_point(0.0, 1.5, -5.0),
-        &Vec4::new_point(0.0, 1.0, 0.0),
+        &Vec4::point(0.0, 1.5, -5.0),
+        &Vec4::point(0.0, 1.0, 0.0),
         &Vec4::VEC_Y_ONE,
     );
 

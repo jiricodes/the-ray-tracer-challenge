@@ -78,7 +78,7 @@ impl Default for World {
     fn default() -> Self {
         let mut w = Self::new();
         // default light
-        let light = PointLight::new(Vec4::new_point(-10.0, 10.0, -10.0), Color::WHITE);
+        let light = PointLight::new(Vec4::point(-10.0, 10.0, -10.0), Color::WHITE);
         w.add_light(light);
 
         // Default sphere 1
@@ -123,10 +123,7 @@ mod tests {
     #[test]
     fn intersect() {
         let w = World::default();
-        let r = Ray::new(
-            &Vec4::new_point(0.0, 0.0, -5.0),
-            &Vec4::new_vec(0.0, 0.0, 1.0),
-        );
+        let r = Ray::new(&Vec4::point(0.0, 0.0, -5.0), &Vec4::vec(0.0, 0.0, 1.0));
         let mut xs = w.intersect(&r);
         xs.sort();
         assert_eq!(4, xs.len());
@@ -140,14 +137,14 @@ mod tests {
     fn hit_shading() {
         // Outside intersection
         let mut w = World::default();
-        let r = Ray::new(&Vec4::new_point(0.0, 0.0, -5.0), &Vec4::VEC_Z_ONE);
+        let r = Ray::new(&Vec4::point(0.0, 0.0, -5.0), &Vec4::VEC_Z_ONE);
         let i = Intersection::new(w.objects[0].clone(), 4.0);
         let comps = PreCompute::new(&i, &r);
         let color = w.shade_hit(&comps);
         assert_eq!(Color::rgb(0.38066, 0.47583, 0.2855), color);
 
         //Inside intersection
-        w.lights[0] = PointLight::new(Vec4::new_point(0.0, 0.25, 0.0), Color::WHITE);
+        w.lights[0] = PointLight::new(Vec4::point(0.0, 0.25, 0.0), Color::WHITE);
         let r = Ray::new(&Vec4::POINT_ZERO, &Vec4::VEC_Z_ONE);
         let i = Intersection::new(w.objects[1].clone(), 0.5);
         let comps = PreCompute::new(&i, &r);
@@ -159,14 +156,14 @@ mod tests {
     fn ball_in_shadows() {
         let mut w = World::new();
         w.add_light(PointLight::new(
-            Vec4::new_point(0.0, 0.0, -10.0),
+            Vec4::point(0.0, 0.0, -10.0),
             Color::rgb(1.0, 1.0, 1.0),
         ));
         w.add_object(Sphere::default_boxed());
         let mut s = Sphere::default_boxed();
         s.set_transform(Mat4::translation(0.0, 0.0, 10.0));
         w.add_object(s);
-        let ray = Ray::new(&Vec4::new_point(0.0, 0.0, 5.0), &Vec4::VEC_Z_ONE);
+        let ray = Ray::new(&Vec4::point(0.0, 0.0, 5.0), &Vec4::VEC_Z_ONE);
         let i = Intersection::new(w.objects[1].clone(), 4.0);
         let comps = PreCompute::new(&i, &ray);
         assert_eq!(Color::rgb(0.1, 0.1, 0.1), w.shade_hit(&comps));
@@ -177,12 +174,12 @@ mod tests {
         let mut w = World::default();
 
         // No hit
-        let r = Ray::new(&Vec4::new_point(0.0, 0.0, -5.0), &Vec4::VEC_Y_ONE);
+        let r = Ray::new(&Vec4::point(0.0, 0.0, -5.0), &Vec4::VEC_Y_ONE);
         let color = w.color_at(&r);
         assert_eq!(Color::BLACK, color);
 
         // Default hit
-        let r = Ray::new(&Vec4::new_point(0.0, 0.0, -5.0), &Vec4::VEC_Z_ONE);
+        let r = Ray::new(&Vec4::point(0.0, 0.0, -5.0), &Vec4::VEC_Z_ONE);
         let color = w.color_at(&r);
         assert_eq!(Color::rgb(0.38066, 0.47583, 0.2855), color);
 
@@ -191,7 +188,7 @@ mod tests {
         m.ambient = 1.0;
         w.objects[0].set_material(m.clone());
         w.objects[1].set_material(m);
-        let r = Ray::new(&Vec4::new_point(0.0, 0.0, 0.75), &-Vec4::VEC_Z_ONE);
+        let r = Ray::new(&Vec4::point(0.0, 0.0, 0.75), &-Vec4::VEC_Z_ONE);
         let color = w.color_at(&r);
         assert_eq!(w.objects[1].get_material().color, color);
     }
@@ -199,13 +196,13 @@ mod tests {
     #[test]
     fn shadows() {
         let w = World::default();
-        let p = Vec4::new_point(0.0, 10.0, 0.0);
+        let p = Vec4::point(0.0, 10.0, 0.0);
         assert_eq!(false, w.is_shadowed(&p));
 
-        let p = Vec4::new_point(10.0, -10.0, 10.0);
+        let p = Vec4::point(10.0, -10.0, 10.0);
         assert_eq!(true, w.is_shadowed(&p));
 
-        let p = Vec4::new_point(-2.0, 2.0, -2.0);
+        let p = Vec4::point(-2.0, 2.0, -2.0);
         assert_eq!(false, w.is_shadowed(&p));
     }
 }

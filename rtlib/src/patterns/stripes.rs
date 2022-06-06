@@ -92,11 +92,11 @@ mod tests {
         let pattern = StripePattern::default();
         assert_eq!(pattern.local_pattern_at(Vec4::POINT_ZERO), Color::WHITE);
         assert_eq!(
-            pattern.local_pattern_at(Vec4::new_point(0.0, 1.0, 0.0)),
+            pattern.local_pattern_at(Vec4::point(0.0, 1.0, 0.0)),
             Color::WHITE
         );
         assert_eq!(
-            pattern.local_pattern_at(Vec4::new_point(0.0, 2.0, 0.0)),
+            pattern.local_pattern_at(Vec4::point(0.0, 2.0, 0.0)),
             Color::WHITE
         );
     }
@@ -106,11 +106,11 @@ mod tests {
         let pattern = StripePattern::default();
         assert_eq!(pattern.local_pattern_at(Vec4::POINT_ZERO), Color::WHITE);
         assert_eq!(
-            pattern.local_pattern_at(Vec4::new_point(0.0, 0.0, 1.0)),
+            pattern.local_pattern_at(Vec4::point(0.0, 0.0, 1.0)),
             Color::WHITE
         );
         assert_eq!(
-            pattern.local_pattern_at(Vec4::new_point(0.0, 0.0, 2.0)),
+            pattern.local_pattern_at(Vec4::point(0.0, 0.0, 2.0)),
             Color::WHITE
         );
     }
@@ -120,23 +120,23 @@ mod tests {
         let pattern = StripePattern::default();
         assert_eq!(pattern.local_pattern_at(Vec4::POINT_ZERO), Color::WHITE);
         assert_eq!(
-            pattern.local_pattern_at(Vec4::new_point(0.9, 1.0, 0.0)),
+            pattern.local_pattern_at(Vec4::point(0.9, 1.0, 0.0)),
             Color::WHITE
         );
         assert_eq!(
-            pattern.local_pattern_at(Vec4::new_point(1.0, 0.0, 0.0)),
+            pattern.local_pattern_at(Vec4::point(1.0, 0.0, 0.0)),
             Color::BLACK
         );
         assert_eq!(
-            pattern.local_pattern_at(Vec4::new_point(-0.1, 0.0, 0.0)),
+            pattern.local_pattern_at(Vec4::point(-0.1, 0.0, 0.0)),
             Color::BLACK
         );
         assert_eq!(
-            pattern.local_pattern_at(Vec4::new_point(-1.0, 0.0, 0.0)),
+            pattern.local_pattern_at(Vec4::point(-1.0, 0.0, 0.0)),
             Color::BLACK
         );
         assert_eq!(
-            pattern.local_pattern_at(Vec4::new_point(-1.1, 0.0, 0.0)),
+            pattern.local_pattern_at(Vec4::point(-1.1, 0.0, 0.0)),
             Color::WHITE
         );
     }
@@ -145,15 +145,15 @@ mod tests {
     fn three_stripes() {
         let pattern = StripePattern::new(vec![Color::RED, Color::BLUE, Color::GREEN], None);
         assert_eq!(
-            pattern.local_pattern_at(Vec4::new_point(0.0, 1.0, 0.0)),
+            pattern.local_pattern_at(Vec4::point(0.0, 1.0, 0.0)),
             Color::RED
         );
         assert_eq!(
-            pattern.local_pattern_at(Vec4::new_point(1.3, 1.0, 0.0)),
+            pattern.local_pattern_at(Vec4::point(1.3, 1.0, 0.0)),
             Color::BLUE
         );
         assert_eq!(
-            pattern.local_pattern_at(Vec4::new_point(2.9, 1.0, 0.0)),
+            pattern.local_pattern_at(Vec4::point(2.9, 1.0, 0.0)),
             Color::GREEN
         );
     }
@@ -162,7 +162,7 @@ mod tests {
     fn on_scaled() {
         let object = Sphere::new(Some(Mat4::scaling(2.0, 2.0, 2.0)), None);
         let pattern = StripePattern::default();
-        let c = pattern.pattern_at(&object, Vec4::new_point(1.5, 0.0, 0.0));
+        let c = pattern.pattern_at(&object, Vec4::point(1.5, 0.0, 0.0));
         assert_eq!(c, Color::WHITE);
     }
 
@@ -171,7 +171,7 @@ mod tests {
         let object = Sphere::default();
         let mut pattern = StripePattern::default();
         pattern.set_transform(Mat4::scaling(2.0, 2.0, 2.0));
-        let c = pattern.pattern_at(&object, Vec4::new_point(1.5, 0.0, 0.0));
+        let c = pattern.pattern_at(&object, Vec4::point(1.5, 0.0, 0.0));
         assert_eq!(c, Color::WHITE);
     }
 
@@ -180,7 +180,7 @@ mod tests {
         let object = Sphere::new(Some(Mat4::scaling(2.0, 2.0, 2.0)), None);
         let mut pattern = StripePattern::default();
         pattern.set_transform(Mat4::translation(0.5, 0.0, 0.0));
-        let c = pattern.pattern_at(&object, Vec4::new_point(2.5, 0.0, 0.0));
+        let c = pattern.pattern_at(&object, Vec4::point(2.5, 0.0, 0.0));
         assert_eq!(c, Color::WHITE);
     }
 }

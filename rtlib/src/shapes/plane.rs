@@ -112,13 +112,13 @@ mod tests {
     fn normal_is_const() {
         let plane = Plane::default();
         let exp = Vec4::VEC_Y_ONE;
-        assert_eq!(plane.local_normal_at(Vec4::new_point(0.0, 0.0, 0.0)), exp);
+        assert_eq!(plane.local_normal_at(Vec4::point(0.0, 0.0, 0.0)), exp);
         assert_eq!(
-            plane.local_normal_at(Vec4::new_point(10.0, 0.0, -10.0)),
+            plane.local_normal_at(Vec4::point(10.0, 0.0, -10.0)),
             exp
         );
         assert_eq!(
-            plane.local_normal_at(Vec4::new_point(-5.0, 0.0, 150.0)),
+            plane.local_normal_at(Vec4::point(-5.0, 0.0, 150.0)),
             exp
         );
     }
@@ -126,7 +126,7 @@ mod tests {
     #[test]
     fn intersect_parallel() {
         let plane = Plane::default();
-        let r = Ray::new(&Vec4::new_point(0.0, 10.0, 0.0), &Vec4::VEC_Z_ONE);
+        let r = Ray::new(&Vec4::point(0.0, 10.0, 0.0), &Vec4::VEC_Z_ONE);
         let xs = plane.local_intersect(r);
         assert!(xs.is_empty())
     }
@@ -142,7 +142,7 @@ mod tests {
     #[test]
     fn intersect_above() {
         let plane = Plane::default_boxed();
-        let r = Ray::new(&Vec4::new_point(0.0, 1.0, 0.0), &-Vec4::VEC_Y_ONE);
+        let r = Ray::new(&Vec4::point(0.0, 1.0, 0.0), &-Vec4::VEC_Y_ONE);
         let xs = plane.local_intersect(r);
         assert_eq!(xs.len(), 1);
         assert_eq!(xs[0].t, 1.0);
@@ -152,7 +152,7 @@ mod tests {
     #[test]
     fn intersect_below() {
         let plane = Plane::default_boxed();
-        let r = Ray::new(&Vec4::new_point(0.0, -1.0, 0.0), &Vec4::VEC_Y_ONE);
+        let r = Ray::new(&Vec4::point(0.0, -1.0, 0.0), &Vec4::VEC_Y_ONE);
         let xs = plane.local_intersect(r);
         assert_eq!(xs.len(), 1);
         assert_eq!(xs[0].t, 1.0);

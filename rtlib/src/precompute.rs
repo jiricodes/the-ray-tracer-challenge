@@ -62,40 +62,34 @@ mod tests {
 
     #[test]
     fn precomputed() {
-        let r = Ray::new(
-            &Vec4::new_point(0.0, 0.0, -5.0),
-            &Vec4::new_vec(0.0, 0.0, 1.0),
-        );
+        let r = Ray::new(&Vec4::point(0.0, 0.0, -5.0), &Vec4::vec(0.0, 0.0, 1.0));
 
         let s = Sphere::default_boxed();
         let i = Intersection::new(s, 4.0);
         let comps = i.precomputed(&r);
         assert_eq!(comps._t, i.t);
         assert_eq!(&comps.object, &i.object);
-        assert_eq!(comps._point, Vec4::new_point(0.0, 0.0, -1.0));
-        assert_eq!(comps.eye_vec, Vec4::new_vec(0.0, 0.0, -1.0));
-        assert_eq!(comps.normal, Vec4::new_vec(0.0, 0.0, -1.0));
+        assert_eq!(comps._point, Vec4::point(0.0, 0.0, -1.0));
+        assert_eq!(comps.eye_vec, Vec4::vec(0.0, 0.0, -1.0));
+        assert_eq!(comps.normal, Vec4::vec(0.0, 0.0, -1.0));
         assert_eq!(comps._inside, false);
 
-        let r = Ray::new(&Vec4::POINT_ZERO, &Vec4::new_vec(0.0, 0.0, 1.0));
+        let r = Ray::new(&Vec4::POINT_ZERO, &Vec4::vec(0.0, 0.0, 1.0));
 
         let s = Sphere::default_boxed();
         let i = Intersection::new(s, 1.0);
         let comps = i.precomputed(&r);
         assert_eq!(comps._t, i.t);
         assert_eq!(&comps.object, &i.object);
-        assert_eq!(comps._point, Vec4::new_point(0.0, 0.0, 1.0));
-        assert_eq!(comps.eye_vec, Vec4::new_vec(0.0, 0.0, -1.0));
-        assert_eq!(comps.normal, Vec4::new_vec(0.0, 0.0, -1.0));
+        assert_eq!(comps._point, Vec4::point(0.0, 0.0, 1.0));
+        assert_eq!(comps.eye_vec, Vec4::vec(0.0, 0.0, -1.0));
+        assert_eq!(comps.normal, Vec4::vec(0.0, 0.0, -1.0));
         assert_eq!(comps._inside, true);
     }
 
     #[test]
     fn overpoint() {
-        let r = Ray::new(
-            &Vec4::new_point(0.0, 0.0, -5.0),
-            &Vec4::new_vec(0.0, 0.0, 1.0),
-        );
+        let r = Ray::new(&Vec4::point(0.0, 0.0, -5.0), &Vec4::vec(0.0, 0.0, 1.0));
         let mut s = Sphere::default_boxed();
         s.set_transform(Mat4::translation(0.0, 0.0, 1.0));
         let i = Intersection::new(s, 5.0);
@@ -107,6 +101,6 @@ mod tests {
     #[test]
     fn reflection() {
         let plane = Plane::default_boxed();
-        let ray = Ray::new()
+        // let ray = Ray::new()
     }
 }

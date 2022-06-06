@@ -736,107 +736,107 @@ mod tests {
     #[test]
     fn translation_mul() {
         let transform = Mat4::translation(5.0, -3.0, 2.0);
-        let p = Vec4::new_point(-3.0, 4.0, 5.0);
+        let p = Vec4::point(-3.0, 4.0, 5.0);
         let inverse_transform = transform.inverse().unwrap();
-        assert_eq!(Vec4::new_point(2.0, 1.0, 7.0), &transform * p);
-        assert_eq!(Vec4::new_point(-8.0, 7.0, 3.0), inverse_transform * p);
-        let v = Vec4::new_vec(-3.0, 4.0, 5.0);
+        assert_eq!(Vec4::point(2.0, 1.0, 7.0), &transform * p);
+        assert_eq!(Vec4::point(-8.0, 7.0, 3.0), inverse_transform * p);
+        let v = Vec4::vec(-3.0, 4.0, 5.0);
         assert_eq!(v, &transform * v);
     }
 
     #[test]
     fn scaling() {
         let t = Mat4::scaling(2.0, 3.0, 4.0);
-        let p = Vec4::new_point(-4.0, 6.0, 8.0);
-        assert_eq!(Vec4::new_point(-8.0, 18.0, 32.0), &t * p);
-        let v = Vec4::new_vec(-4.0, 6.0, 8.0);
-        assert_eq!(Vec4::new_vec(-8.0, 18.0, 32.0), &t * v);
-        assert_eq!(Vec4::new_vec(-2.0, 2.0, 2.0), t.inverse().unwrap() * v);
+        let p = Vec4::point(-4.0, 6.0, 8.0);
+        assert_eq!(Vec4::point(-8.0, 18.0, 32.0), &t * p);
+        let v = Vec4::vec(-4.0, 6.0, 8.0);
+        assert_eq!(Vec4::vec(-8.0, 18.0, 32.0), &t * v);
+        assert_eq!(Vec4::vec(-2.0, 2.0, 2.0), t.inverse().unwrap() * v);
 
         // Reflection - mirror x
         let t = Mat4::scaling(-1.0, 1.0, 1.0);
-        let p = Vec4::new_point(2.0, 3.0, 4.0);
-        assert_eq!(Vec4::new_point(-2.0, 3.0, 4.0), &t * p);
+        let p = Vec4::point(2.0, 3.0, 4.0);
+        assert_eq!(Vec4::point(-2.0, 3.0, 4.0), &t * p);
     }
 
     #[test]
     fn rotation() {
         // x
-        let p = Vec4::new_point(0.0, 1.0, 0.0);
+        let p = Vec4::point(0.0, 1.0, 0.0);
         let half_quarter = Mat4::rotation_x(PI / 4.0);
         let full_quarter = Mat4::rotation_x(PI / 2.0);
         assert_eq!(
-            Vec4::new_point(0.0, 2f64.sqrt() / 2.0, 2f64.sqrt() / 2.0),
+            Vec4::point(0.0, 2f64.sqrt() / 2.0, 2f64.sqrt() / 2.0),
             half_quarter * p
         );
-        let exp = Vec4::new_point(0.0, 0.0, 1.0);
+        let exp = Vec4::point(0.0, 0.0, 1.0);
         assert_eq!(exp, full_quarter * p);
 
         // y
-        let p = Vec4::new_point(0.0, 0.0, 1.0);
+        let p = Vec4::point(0.0, 0.0, 1.0);
         let half_quarter = Mat4::rotation_y(PI / 4.0);
         let full_quarter = Mat4::rotation_y(PI / 2.0);
         assert_eq!(
-            Vec4::new_point(2f64.sqrt() / 2.0, 0.0, 2f64.sqrt() / 2.0),
+            Vec4::point(2f64.sqrt() / 2.0, 0.0, 2f64.sqrt() / 2.0),
             half_quarter * p
         );
-        let exp = Vec4::new_point(1.0, 0.0, 0.0);
+        let exp = Vec4::point(1.0, 0.0, 0.0);
         assert_eq!(exp, full_quarter * p);
 
         // z
-        let p = Vec4::new_point(0.0, 1.0, 0.0);
+        let p = Vec4::point(0.0, 1.0, 0.0);
         let half_quarter = Mat4::rotation_z(PI / 4.0);
         let full_quarter = Mat4::rotation_z(PI / 2.0);
         assert_eq!(
-            Vec4::new_point(-2f64.sqrt() / 2.0, 2f64.sqrt() / 2.0, 0.0),
+            Vec4::point(-2f64.sqrt() / 2.0, 2f64.sqrt() / 2.0, 0.0),
             half_quarter * p
         );
-        let exp = Vec4::new_point(-1.0, 0.0, 0.0);
+        let exp = Vec4::point(-1.0, 0.0, 0.0);
         assert_eq!(exp, full_quarter * p);
     }
 
     #[test]
     fn shearing() {
-        let p = Vec4::new_point(2.0, 3.0, 4.0);
+        let p = Vec4::point(2.0, 3.0, 4.0);
 
         let t = Mat4::shearing(1.0, 0.0, 0.0, 0.0, 0.0, 0.0);
-        assert_eq!(Vec4::new_point(5.0, 3.0, 4.0), t * p);
+        assert_eq!(Vec4::point(5.0, 3.0, 4.0), t * p);
 
         let t = Mat4::shearing(0.0, 1.0, 0.0, 0.0, 0.0, 0.0);
-        assert_eq!(Vec4::new_point(6.0, 3.0, 4.0), t * p);
+        assert_eq!(Vec4::point(6.0, 3.0, 4.0), t * p);
 
         let t = Mat4::shearing(0.0, 0.0, 1.0, 0.0, 0.0, 0.0);
-        assert_eq!(Vec4::new_point(2.0, 5.0, 4.0), t * p);
+        assert_eq!(Vec4::point(2.0, 5.0, 4.0), t * p);
 
         let t = Mat4::shearing(0.0, 0.0, 0.0, 1.0, 0.0, 0.0);
-        assert_eq!(Vec4::new_point(2.0, 7.0, 4.0), t * p);
+        assert_eq!(Vec4::point(2.0, 7.0, 4.0), t * p);
 
         let t = Mat4::shearing(0.0, 0.0, 0.0, 0.0, 1.0, 0.0);
-        assert_eq!(Vec4::new_point(2.0, 3.0, 6.0), t * p);
+        assert_eq!(Vec4::point(2.0, 3.0, 6.0), t * p);
 
         let t = Mat4::shearing(0.0, 0.0, 0.0, 0.0, 0.0, 1.0);
-        assert_eq!(Vec4::new_point(2.0, 3.0, 7.0), t * p);
+        assert_eq!(Vec4::point(2.0, 3.0, 7.0), t * p);
     }
 
     #[test]
     fn combo_transform() {
-        let p = Vec4::new_point(1.0, 0.0, 1.0);
+        let p = Vec4::point(1.0, 0.0, 1.0);
         let rot = Mat4::rotation_x(PI / 2.0);
         let scale = Mat4::scaling(5.0, 5.0, 5.0);
         let t = Mat4::translation(10.0, 5.0, 7.0);
 
         let p2 = &rot * p;
-        assert_eq!(p2, Vec4::new_point(1.0, -1.0, 0.0));
+        assert_eq!(p2, Vec4::point(1.0, -1.0, 0.0));
 
         let p3 = &scale * p2;
-        assert_eq!(p3, Vec4::new_point(5.0, -5.0, 0.0));
+        assert_eq!(p3, Vec4::point(5.0, -5.0, 0.0));
 
         let p4 = &t * p3;
-        assert_eq!(p4, Vec4::new_point(15.0, 0.0, 7.0));
+        assert_eq!(p4, Vec4::point(15.0, 0.0, 7.0));
 
         let transform = t * scale * rot;
         let p5 = transform * p;
-        assert_eq!(p5, Vec4::new_point(15.0, 0.0, 7.0));
+        assert_eq!(p5, Vec4::point(15.0, 0.0, 7.0));
     }
 
     fn approx_eq(a: &Mat4, b: &Mat4) {
@@ -858,26 +858,26 @@ mod tests {
     #[test]
     fn view_transform() {
         let from = Vec4::POINT_ZERO;
-        let to = Vec4::new_point(0.0, 0.0, -1.0);
+        let to = Vec4::point(0.0, 0.0, -1.0);
         let up = Vec4::VEC_Y_ONE;
         let t = Mat4::view_transform(&from, &to, &up);
         assert_eq!(Mat4::IDENTITY, t);
 
         let from = Vec4::POINT_ZERO;
-        let to = Vec4::new_point(0.0, 0.0, 1.0);
+        let to = Vec4::point(0.0, 0.0, 1.0);
         let up = Vec4::VEC_Y_ONE;
         let t = Mat4::view_transform(&from, &to, &up);
         assert_eq!(Mat4::scaling(-1.0, 1.0, -1.0), t);
 
-        let from = Vec4::new_point(0.0, 0.0, 8.0);
+        let from = Vec4::point(0.0, 0.0, 8.0);
         let to = Vec4::POINT_ZERO;
         let up = Vec4::VEC_Y_ONE;
         let t = Mat4::view_transform(&from, &to, &up);
         assert_eq!(Mat4::translation(0.0, 0.0, -8.0), t);
 
-        let from = Vec4::new_point(1.0, 3.0, 2.0);
-        let to = Vec4::new_point(4.0, -2.0, 8.0);
-        let up = Vec4::new_vec(1.0, 1.0, 0.0);
+        let from = Vec4::point(1.0, 3.0, 2.0);
+        let to = Vec4::point(4.0, -2.0, 8.0);
+        let up = Vec4::vec(1.0, 1.0, 0.0);
         let t = Mat4::view_transform(&from, &to, &up);
         let exp = Mat4 {
             data: [

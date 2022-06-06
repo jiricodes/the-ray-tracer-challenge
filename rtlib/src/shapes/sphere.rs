@@ -136,36 +136,33 @@ mod tests {
         let s = Sphere::default();
 
         // 2 points of intersection
-        let mut r = Ray::new(
-            &Vec4::new_point(0.0, 0.0, -5.0),
-            &Vec4::new_vec(0.0, 0.0, 1.0),
-        );
+        let mut r = Ray::new(&Vec4::point(0.0, 0.0, -5.0), &Vec4::vec(0.0, 0.0, 1.0));
         let xs = s.intersect(&r);
         assert_eq!(xs.len(), 2);
         assert_eq!(xs[0].t, 4.0);
         assert_eq!(xs[1].t, 6.0);
 
         // tangent
-        r.origin = Vec4::new_point(0.0, 1.0, -5.0);
+        r.origin = Vec4::point(0.0, 1.0, -5.0);
         let xs = s.intersect(&r);
         assert_eq!(xs.len(), 2);
         assert_eq!(xs[0].t, 5.0);
         assert_eq!(xs[1].t, 5.0);
 
         // no intersection
-        r.origin = Vec4::new_point(0.0, 2.0, -5.0);
+        r.origin = Vec4::point(0.0, 2.0, -5.0);
         let xs = s.intersect(&r);
         assert_eq!(xs.len(), 0);
 
         // ray origin inside sphere
-        r.origin = Vec4::new_point(0.0, 0.0, 0.0);
+        r.origin = Vec4::point(0.0, 0.0, 0.0);
         let xs = s.intersect(&r);
         assert_eq!(xs.len(), 2);
         assert_eq!(xs[0].t, -1.0);
         assert_eq!(xs[1].t, 1.0);
 
         // ray origin "behind" the sphere
-        r.origin = Vec4::new_point(0.0, 0.0, 5.0);
+        r.origin = Vec4::point(0.0, 0.0, 5.0);
         let xs = s.intersect(&r);
         assert_eq!(xs.len(), 2);
         assert_eq!(xs[0].t, -6.0);
@@ -173,10 +170,7 @@ mod tests {
 
         // After transformation p69
         let s = Sphere::new(Some(Mat4::scaling(2.0, 2.0, 2.0)), None);
-        let r = Ray::new(
-            &Vec4::new_point(0.0, 0.0, -5.0),
-            &Vec4::new_vec(0.0, 0.0, 1.0),
-        );
+        let r = Ray::new(&Vec4::point(0.0, 0.0, -5.0), &Vec4::vec(0.0, 0.0, 1.0));
         let xs = s.intersect(&r);
         assert_eq!(xs.len(), 2);
         assert_eq!(xs[0].t, 3.0);
@@ -200,28 +194,28 @@ mod tests {
     #[test]
     fn normal_at() {
         let s = Sphere::default();
-        let p = Vec4::new_point(1.0, 0.0, 0.0);
-        let exp = Vec4::new_vec(1.0, 0.0, 0.0);
+        let p = Vec4::point(1.0, 0.0, 0.0);
+        let exp = Vec4::vec(1.0, 0.0, 0.0);
         assert_eq!(exp, s.normal_at(p));
 
-        let p = Vec4::new_point(0.0, 1.0, 0.0);
-        let exp = Vec4::new_vec(0.0, 1.0, 0.0);
+        let p = Vec4::point(0.0, 1.0, 0.0);
+        let exp = Vec4::vec(0.0, 1.0, 0.0);
         assert_eq!(exp, s.normal_at(p));
 
-        let p = Vec4::new_point(0.0, 0.0, 1.0);
-        let exp = Vec4::new_vec(0.0, 0.0, 1.0);
+        let p = Vec4::point(0.0, 0.0, 1.0);
+        let exp = Vec4::vec(0.0, 0.0, 1.0);
         assert_eq!(exp, s.normal_at(p));
 
-        let p = Vec4::new_point(3f64.sqrt() / 3.0, 3f64.sqrt() / 3.0, 3f64.sqrt() / 3.0);
-        let exp = Vec4::new_vec(3f64.sqrt() / 3.0, 3f64.sqrt() / 3.0, 3f64.sqrt() / 3.0);
+        let p = Vec4::point(3f64.sqrt() / 3.0, 3f64.sqrt() / 3.0, 3f64.sqrt() / 3.0);
+        let exp = Vec4::vec(3f64.sqrt() / 3.0, 3f64.sqrt() / 3.0, 3f64.sqrt() / 3.0);
         let n = s.normal_at(p);
         assert_eq!(exp, n);
         assert_eq!(n, n.normalize());
 
         let s = Sphere::new(Some(Mat4::translation(0.0, 1.0, 0.0)), None);
 
-        let p = Vec4::new_point(0.0, 1.70711, -0.70711);
-        let exp = Vec4::new_vec(0.0, 0.70711, -0.70711);
+        let p = Vec4::point(0.0, 1.70711, -0.70711);
+        let exp = Vec4::vec(0.0, 0.70711, -0.70711);
         let n = s.normal_at(p);
         assert_eq!(exp, n);
     }
@@ -232,8 +226,8 @@ mod tests {
             Some(Mat4::scaling(1.0, 0.5, 1.0) * Mat4::rotation_z(PI / 5.0)),
             None,
         );
-        let p = Vec4::new_point(0.0, SQRT_2 / 2.0, -SQRT_2 / 2.0);
-        let exp = Vec4::new_vec(0.0, 0.97014, -0.24254);
+        let p = Vec4::point(0.0, SQRT_2 / 2.0, -SQRT_2 / 2.0);
+        let exp = Vec4::vec(0.0, 0.97014, -0.24254);
         let n = s.normal_at(p);
         assert_eq!(exp, n);
     }

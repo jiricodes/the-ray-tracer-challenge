@@ -101,11 +101,11 @@ mod tests {
         let pattern = CheckersPattern::default();
         assert_eq!(pattern.local_pattern_at(Vec4::POINT_ZERO), Color::WHITE);
         assert_eq!(
-            pattern.local_pattern_at(Vec4::new_point(0.99, 0.0, 0.0)),
+            pattern.local_pattern_at(Vec4::point(0.99, 0.0, 0.0)),
             Color::WHITE
         );
         assert_eq!(
-            pattern.local_pattern_at(Vec4::new_point(1.01, 0.0, 0.0)),
+            pattern.local_pattern_at(Vec4::point(1.01, 0.0, 0.0)),
             Color::BLACK
         );
     }
@@ -115,11 +115,11 @@ mod tests {
         let pattern = CheckersPattern::default();
         assert_eq!(pattern.local_pattern_at(Vec4::POINT_ZERO), Color::WHITE);
         assert_eq!(
-            pattern.local_pattern_at(Vec4::new_point(0.0, 0.99, 0.0)),
+            pattern.local_pattern_at(Vec4::point(0.0, 0.99, 0.0)),
             Color::WHITE
         );
         assert_eq!(
-            pattern.local_pattern_at(Vec4::new_point(0.0, 1.01, 0.0)),
+            pattern.local_pattern_at(Vec4::point(0.0, 1.01, 0.0)),
             Color::BLACK
         );
     }
@@ -129,11 +129,11 @@ mod tests {
         let pattern = CheckersPattern::default();
         assert_eq!(pattern.local_pattern_at(Vec4::POINT_ZERO), Color::WHITE);
         assert_eq!(
-            pattern.local_pattern_at(Vec4::new_point(0.0, 0.0, 0.99)),
+            pattern.local_pattern_at(Vec4::point(0.0, 0.0, 0.99)),
             Color::WHITE
         );
         assert_eq!(
-            pattern.local_pattern_at(Vec4::new_point(0.0, 0.0, 1.01)),
+            pattern.local_pattern_at(Vec4::point(0.0, 0.0, 1.01)),
             Color::BLACK
         );
     }
@@ -143,15 +143,15 @@ mod tests {
         let pattern = CheckersPattern::default();
         assert_eq!(pattern.local_pattern_at(Vec4::POINT_ZERO), Color::WHITE);
         assert_eq!(
-            pattern.local_pattern_at(Vec4::new_point(0.99, 0.0, 0.99)),
+            pattern.local_pattern_at(Vec4::point(0.99, 0.0, 0.99)),
             Color::WHITE
         );
         assert_eq!(
-            pattern.local_pattern_at(Vec4::new_point(0.99, 0.0, 1.09)),
+            pattern.local_pattern_at(Vec4::point(0.99, 0.0, 1.09)),
             Color::BLACK
         );
         assert_eq!(
-            pattern.local_pattern_at(Vec4::new_point(1.09, 0.0, 1.09)),
+            pattern.local_pattern_at(Vec4::point(1.09, 0.0, 1.09)),
             Color::WHITE
         );
     }
