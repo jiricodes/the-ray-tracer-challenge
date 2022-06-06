@@ -89,6 +89,10 @@ impl Intersections {
     pub fn append(&mut self, other: &mut Self) {
         self.inner.append(&mut other.inner);
     }
+
+    pub fn get_inner_ref(&self) -> &Vec<Intersection> {
+        &self.inner
+    }
 }
 
 #[cfg(test)]

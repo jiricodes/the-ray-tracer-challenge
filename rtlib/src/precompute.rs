@@ -33,14 +33,34 @@ impl PreCompute {
         }
 
         // n1 and n2 checking
-        let xs: &Vec<Intersection> = if xs.is_none() {
-            &vec![i.clone()]
-        } else  { 
-            xs.unwrap()
-        };
+        let tmp_xs = vec![i.clone()];
+        let xs: &Vec<Intersection> = if xs.is_none() { &tmp_xs } else { xs.unwrap() };
 
-        for i in xs.iter() {
-            
+        let mut n1: f64 = 0.0;
+        let mut n2: f64 = 0.0;
+        let mut containers: Vec<BoxShape> = Vec::new();
+        for xi in xs.iter() {
+            if xi == i {
+                if containers.is_empty() {
+                    n1 = 1.0;
+                } else {
+                    n1 = containers.last().unwrap().get_material().refractive_index;
+                }
+            }
+            if let Some(index) = containers.iter().position(|x| x == &xi.object) {
+                containers.remove(index);
+            } else {
+                containers.push(xi.object.clone())
+            }
+
+            if xi == i {
+                if containers.is_empty() {
+                    n2 = 1.0;
+                } else {
+                    n2 = containers.last().unwrap().get_material().refractive_index;
+                }
+                break;
+            }
         }
 
         Self {
@@ -52,8 +72,8 @@ impl PreCompute {
             _inside: inside,
             over_point: p + (normal * EPSILON),
             reflect_vec: r.direction.reflect(&normal),
-            n1: i.object.get_material().refractive_index,
-            n2: 1.0,
+            n1: n1,
+            n2: n2,
         }
     }
 
@@ -95,7 +115,7 @@ mod tests {
 
         let s = Sphere::default_boxed();
         let i = Intersection::new(s, 4.0);
-        let comps = i.precomputed(&r);
+        let comps = i.precomputed(&r, None);
         assert_eq!(comps._t, i.t);
         assert_eq!(&comps.object, &i.object);
         assert_eq!(comps._point, Vec4::point(0.0, 0.0, -1.0));
@@ -107,7 +127,7 @@ mod tests {
 
         let s = Sphere::default_boxed();
         let i = Intersection::new(s, 1.0);
-        let comps = i.precomputed(&r);
+        let comps = i.precomputed(&r, None);
         assert_eq!(comps._t, i.t);
         assert_eq!(&comps.object, &i.object);
         assert_eq!(comps._point, Vec4::point(0.0, 0.0, 1.0));
@@ -122,7 +142,7 @@ mod tests {
         let mut s = Sphere::default_boxed();
         s.set_transform(Mat4::translation(0.0, 0.0, 1.0));
         let i = Intersection::new(s, 5.0);
-        let comps = i.precomputed(&r);
+        let comps = i.precomputed(&r, None);
         assert!(comps.over_point.z < -EPSILON / 2.0);
         assert!(comps._point.z > comps.over_point.z);
     }
@@ -134,7 +154,7 @@ mod tests {
             &Vec4::point(0.0, 1.0, -1.0),
             &Vec4::vec(0.0, -SQRT_2 / 2.0, SQRT_2 / 2.0),
         );
-        let comps = Intersection::new(plane, SQRT_2).precomputed(&ray);
+        let comps = Intersection::new(plane, SQRT_2).precomputed(&ray, None);
         assert_eq!(
             comps.reflect_vec,
             Vec4::vec(0.0, SQRT_2 / 2.0, SQRT_2 / 2.0)
@@ -160,8 +180,12 @@ mod tests {
             Intersection::new(a, 6.0),
         ];
         let xs = Intersections::from(i);
+        let exp_n1 = vec![1.0, 1.5, 2.0, 2.5, 2.5, 1.5];
+        let exp_n2 = vec![1.5, 2.0, 2.5, 2.5, 1.5, 1.0];
         for i in 0..xs.len() {
-            let comps = xs[i].precomputed(&ray)
+            let comps = xs[i].precomputed(&ray, Some(xs.get_inner_ref()));
+            assert_eq!(comps.n1, exp_n1[i], "N1 at case {}", i);
+            assert_eq!(comps.n2, exp_n2[i], "N2 ar case {}", i);
         }
     }
 }

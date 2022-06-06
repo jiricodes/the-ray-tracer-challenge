@@ -52,7 +52,7 @@ impl World {
     pub fn color_at(&self, r: &Ray, max_reflections: u32) -> Color {
         let xs = self.intersect(r);
         if let Some(i) = xs.hit() {
-            let comps = PreCompute::new(&i, r);
+            let comps = PreCompute::new(&i, r, Some(xs.get_inner_ref()));
             self.shade_hit(&comps, max_reflections)
         } else {
             Color::BLACK
@@ -151,7 +151,7 @@ mod tests {
         let mut w = World::default();
         let r = Ray::new(&Vec4::point(0.0, 0.0, -5.0), &Vec4::VEC_Z_ONE);
         let i = Intersection::new(w.objects[0].clone(), 4.0);
-        let comps = PreCompute::new(&i, &r);
+        let comps = PreCompute::new(&i, &r, None);
         let color = w.shade_hit(&comps, 0);
         assert_eq!(Color::rgb(0.38066, 0.47583, 0.2855), color);
 
@@ -159,7 +159,7 @@ mod tests {
         w.lights[0] = PointLight::new(Vec4::point(0.0, 0.25, 0.0), Color::WHITE);
         let r = Ray::new(&Vec4::POINT_ZERO, &Vec4::VEC_Z_ONE);
         let i = Intersection::new(w.objects[1].clone(), 0.5);
-        let comps = PreCompute::new(&i, &r);
+        let comps = PreCompute::new(&i, &r, None);
         let color = w.shade_hit(&comps, 0);
         assert_eq!(Color::rgb(0.90498, 0.90498, 0.90498), color);
     }
@@ -177,7 +177,7 @@ mod tests {
         w.add_object(s);
         let ray = Ray::new(&Vec4::point(0.0, 0.0, 5.0), &Vec4::VEC_Z_ONE);
         let i = Intersection::new(w.objects[1].clone(), 4.0);
-        let comps = PreCompute::new(&i, &ray);
+        let comps = PreCompute::new(&i, &ray, None);
         assert_eq!(Color::rgb(0.1, 0.1, 0.1), w.shade_hit(&comps, 0));
     }
 
@@ -225,7 +225,7 @@ mod tests {
         let mut m = Material::default();
         m.ambient = 1.0;
         w.objects[1].set_material(m);
-        let comps = Intersection::new(w.objects[1].clone(), 1.0).precomputed(&r);
+        let comps = Intersection::new(w.objects[1].clone(), 1.0).precomputed(&r, None);
         assert_eq!(w.reflected_color(&comps, 5), Color::BLACK);
     }
 
@@ -248,7 +248,7 @@ mod tests {
             &Vec4::vec(0.0, -SQRT_2 / 2.0, SQRT_2 / 2.0),
         );
 
-        let comps = Intersection::new(plane, SQRT_2).precomputed(&r);
+        let comps = Intersection::new(plane, SQRT_2).precomputed(&r, None);
         assert_eq!(
             w.reflected_color(&comps, 5),
             Color::rgb(0.190332201495133, 0.23791525186891627, 0.14274915112134975)
@@ -274,7 +274,7 @@ mod tests {
             &Vec4::vec(0.0, -SQRT_2 / 2.0, SQRT_2 / 2.0),
         );
 
-        let comps = Intersection::new(plane, SQRT_2).precomputed(&r);
+        let comps = Intersection::new(plane, SQRT_2).precomputed(&r, None);
         assert_eq!(
             w.shade_hit(&comps, 5),
             Color::rgb(0.8767572837020907, 0.924340334075874, 0.8291742333283075)
