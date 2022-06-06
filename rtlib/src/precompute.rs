@@ -1,6 +1,7 @@
 use crate::color::Color;
 use crate::intersection::Intersection;
 use crate::light::PointLight;
+use crate::material::Material;
 use crate::math::vec4::Vec4;
 use crate::math::EPSILON;
 use crate::ray::Ray;
@@ -15,6 +16,7 @@ pub struct PreCompute {
     normal: Vec4,
     _inside: bool,
     over_point: Vec4,
+    reflect_vec: Vec4,
 }
 
 impl PreCompute {
@@ -35,6 +37,7 @@ impl PreCompute {
             normal: n,
             _inside: inside,
             over_point: p + (n * EPSILON),
+            reflect_vec: r.direction.reflect(&n),
         }
     }
 
@@ -52,12 +55,21 @@ impl PreCompute {
     pub fn get_overpoint(&self) -> &Vec4 {
         &self.over_point
     }
+
+    pub fn get_reflect_vec(&self) -> &Vec4 {
+        &self.reflect_vec
+    }
+
+    pub fn get_material(&self) -> &Material {
+        self.object.get_material()
+    }
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
     use crate::math::matrix::Mat4;
+    use crate::math::SQRT_2;
     use crate::shapes::{Plane, Sphere};
 
     #[test]
@@ -101,6 +113,14 @@ mod tests {
     #[test]
     fn reflection() {
         let plane = Plane::default_boxed();
-        // let ray = Ray::new()
+        let ray = Ray::new(
+            &Vec4::point(0.0, 1.0, -1.0),
+            &Vec4::vec(0.0, -SQRT_2 / 2.0, SQRT_2 / 2.0),
+        );
+        let comps = Intersection::new(plane, SQRT_2).precomputed(&ray);
+        assert_eq!(
+            comps.reflect_vec,
+            Vec4::vec(0.0, SQRT_2 / 2.0, SQRT_2 / 2.0)
+        );
     }
 }

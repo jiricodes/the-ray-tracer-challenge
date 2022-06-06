@@ -51,10 +51,7 @@ fn main() {
     material.color = Color::rgb(0.5, 1.0, 0.1);
     material.diffuse = 0.4;
     material.shininess = 50.0;
-    material.pattern = Some(patterns::RingPattern::new_boxed(
-        vec![Color::WHITE, material.color, Color::BLACK, Color::RED],
-        Some(Mat4::scaling(0.1, 0.1, 0.1)),
-    ));
+    material.reflectivness = 1.0;
     let medium_sphere = shapes::Sphere::new_boxed(Some(transform), Some(material));
 
     // small sphere
@@ -74,16 +71,12 @@ fn main() {
     let transform = Mat4::translation(-1.0, 0.15, -0.6) * Mat4::scaling(0.15, 0.15, 0.15);
     let mut material = Material::default();
     material.color = Color::rgb(1.0, 0.3, 0.1);
-    material.pattern = Some(patterns::GradientPattern::new_boxed(
-        material.color,
-        Color::WHITE,
-        Some(Mat4::translation(-1.0, 0.0, 0.0) * Mat4::scaling(2.0, 1.0, 1.0)),
-    ));
+    material.reflectivness = 1.0;
     let shadow_sphere = shapes::Sphere::new_boxed(Some(transform), Some(material));
 
     // Light
     let light = PointLight::new(Vec4::point(-10.0, 10.0, -10.0), Color::WHITE);
-    let light2 = PointLight::new(Vec4::point(10.0, 10.0, -10.0), Color::rgb(0.5, 0.5, 0.5));
+    // let light2 = PointLight::new(Vec4::point(10.0, 10.0, -10.0), Color::rgb(0.5, 0.5, 0.5));
 
     // world
     let mut w = World::new();
@@ -95,7 +88,7 @@ fn main() {
     w.add_object(small_sphere);
     w.add_object(shadow_sphere);
     w.add_light(light);
-    w.add_light(light2);
+    // w.add_light(light2);
 
     // Camera
     let mut camera = Camera::new(1920, 1080, PI / 3.0);
@@ -106,7 +99,7 @@ fn main() {
     );
 
     // Render
-    let canvas = render(&camera, &w);
+    let canvas = render(&camera, &w, &RenderSettings::default());
 
     println!("{}", canvas.into_ppm_string());
 }

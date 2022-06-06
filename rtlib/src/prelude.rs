@@ -9,6 +9,7 @@ pub use crate::math::matrix::Mat4;
 pub use crate::math::vec4::Vec4;
 pub use crate::patterns;
 pub use crate::ray::Ray;
+pub use crate::render::RenderSettings;
 pub use crate::shapes;
 pub use crate::world::World;
 
