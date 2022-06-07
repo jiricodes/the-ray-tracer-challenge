@@ -101,6 +101,9 @@ impl PreCompute {
     pub fn get_material(&self) -> &Material {
         self.object.get_material()
     }
+    pub fn is_reflective_and_transparent(&self) -> bool {
+        self.object.get_material().is_reflective_and_transparent()
+    }
 
     pub fn get_refracted_ray(&self) -> Option<Ray> {
         let n_ratio = self.n1 / self.n2;
@@ -113,6 +116,21 @@ impl PreCompute {
         let cos_t = (1.0 - sin2_t).sqrt();
         let direction = self.normal * (n_ratio * cos_i - cos_t) - self.eye_vec * n_ratio;
         Some(Ray::new(&self.under_point, &direction))
+    }
+
+    /// Schlick's adaptation of Fresnel Effect for reflectance
+    pub fn schlick(&self) -> f64 {
+        let n_ratio = self.n1 / self.n2;
+        let mut cos = self.eye_vec.dot(&self.normal);
+        let sin2_t = n_ratio.powi(2) * (1.0 - cos.powi(2));
+        if self.n1 > self.n2 {
+            if sin2_t > 1.0 {
+                return 1.0;
+            }
+            cos = (1.0 - sin2_t).sqrt();
+        }
+        let r0 = ((self.n1 - self.n2) / (self.n1 + self.n2)).powi(2);
+        r0 + (1.0 - r0) * (1.0 - cos).powi(5)
     }
 }
 
@@ -218,5 +236,38 @@ mod tests {
         let comps = i.precomputed(&r, Some(xs.get_inner_ref()));
         assert!(comps.under_point.z > EPSILON / 2.0);
         assert!(comps._point.z < comps.under_point.z)
+    }
+
+    #[test]
+    fn schlick_total_internal_reflection() {
+        let s = Sphere::new_boxed(None, Some(Material::GLASS));
+        let r = Ray::new(&Vec4::point(0.0, 0.0, SQRT_2 / 2.0), &Vec4::VEC_Y_ONE);
+        let xs = Intersections::from(vec![
+            Intersection::new(s.clone(), -SQRT_2 / 2.0),
+            Intersection::new(s.clone(), SQRT_2 / 2.0),
+        ]);
+        let comps = xs[1].precomputed(&r, Some(xs.get_inner_ref()));
+        assert_eq!(comps.schlick(), 1.0);
+    }
+
+    #[test]
+    fn schlick_prependicular() {
+        let s = Sphere::new_boxed(None, Some(Material::GLASS));
+        let r = Ray::new(&Vec4::POINT_ZERO, &Vec4::VEC_Y_ONE);
+        let xs = Intersections::from(vec![
+            Intersection::new(s.clone(), -1.0),
+            Intersection::new(s.clone(), 1.0),
+        ]);
+        let comps = xs[1].precomputed(&r, Some(xs.get_inner_ref()));
+        assert_eq!(comps.schlick(), 0.04000000000000001);
+    }
+
+    #[test]
+    fn schlick_n2_over_n1() {
+        let s = Sphere::new_boxed(None, Some(Material::GLASS));
+        let r = Ray::new(&Vec4::point(0.0, 0.99, -2.0), &Vec4::VEC_Z_ONE);
+        let i = Intersection::new(s.clone(), 1.8589);
+        let comps = i.precomputed(&r, None);
+        assert_eq!(comps.schlick(), 0.4887308101221217);
     }
 }

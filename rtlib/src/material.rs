@@ -106,6 +106,10 @@ impl Material {
         };
         ambient + diffuse + specular
     }
+
+    pub fn is_reflective_and_transparent(&self) -> bool {
+        self.reflectivness > 0.0 && self.transparency > 0.0
+    }
 }
 
 impl Default for Material {

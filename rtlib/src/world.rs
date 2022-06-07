@@ -46,9 +46,16 @@ impl World {
         for light in self.lights.iter() {
             color = color + comps.lighting(light, is_shadowed);
         }
-        color
-            + self.reflected_color(comps, recursion_limit)
-            + self.refracted_color(comps, recursion_limit)
+
+        let reflected = self.reflected_color(comps, recursion_limit);
+        let refracted = self.refracted_color(comps, recursion_limit);
+
+        if comps.is_reflective_and_transparent() {
+            let reflectance = comps.schlick();
+            color + reflected * reflectance + refracted * (1.0 - reflectance)
+        } else {
+            color + reflected + refracted
+        }
     }
 
     pub fn color_at(&self, r: &Ray, max_reflections: u32) -> Color {
@@ -431,6 +438,45 @@ mod tests {
         assert_eq!(
             w.shade_hit(&comps, 5),
             Color::rgb(0.93642, 0.68642, 0.68642)
+        );
+    }
+
+    #[test]
+    fn refract_with_schlick_shade_hit() {
+        let mut w = World::default();
+        // Semi transparent floor
+        let floor = Plane::new_boxed(
+            Some(Mat4::translation(0.0, -1.0, 0.0)),
+            Some(Material {
+                reflectivness: 0.5,
+                transparency: 0.5,
+                refractive_index: 1.5,
+                ..Default::default()
+            }),
+        );
+        w.add_object(floor);
+
+        // Ball under floor
+        let ball = Sphere::new_boxed(
+            Some(Mat4::translation(0.0, -3.5, -0.5)),
+            Some(Material {
+                color: Color::RED,
+                ambient: 0.5,
+                ..Default::default()
+            }),
+        );
+        w.add_object(ball);
+
+        let r = Ray::new(
+            &Vec4::point(0.0, 0.0, -3.0),
+            &Vec4::vec(0.0, -SQRT_2 / 2.0, SQRT_2 / 2.0),
+        );
+        let i = Intersection::new(w.objects[2].clone(), SQRT_2);
+
+        let comps = i.precomputed(&r, None);
+        assert_eq!(
+            w.shade_hit(&comps, 5),
+            Color::rgb(0.93391, 0.69643, 0.69243)
         );
     }
 }
