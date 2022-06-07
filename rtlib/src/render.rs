@@ -3,14 +3,12 @@ use crate::canvas::Canvas;
 use crate::world::World;
 
 pub struct RenderSettings {
-    pub reflection_limit: u32,
+    pub recursion_limit: u32,
 }
 
 impl Default for RenderSettings {
     fn default() -> Self {
-        Self {
-            reflection_limit: 5,
-        }
+        Self { recursion_limit: 5 }
     }
 }
 
@@ -22,7 +20,7 @@ pub fn render(camera: &Camera, world: &World, settings: &RenderSettings) -> Canv
     for y in 0..h {
         for x in 0..w {
             let r = camera.ray_for_pixel(x, y);
-            let color = world.color_at(&r, settings.reflection_limit);
+            let color = world.color_at(&r, settings.recursion_limit);
             let _ = image.put_pixel(x, y, color);
         }
     }
@@ -45,13 +43,7 @@ mod tests {
         let to = Vec4::POINT_ZERO;
         let up = Vec4::VEC_Y_ONE;
         c.view_transform(&from, &to, &up);
-        let image: Canvas = render(
-            &c,
-            &w,
-            &RenderSettings {
-                reflection_limit: 0,
-            },
-        );
+        let image: Canvas = render(&c, &w, &RenderSettings { recursion_limit: 0 });
         assert_eq!(
             image.get_pixel(5, 5).unwrap(),
             Color::rgb(0.38066, 0.47583, 0.2855)
