@@ -102,10 +102,17 @@ impl PreCompute {
         self.object.get_material()
     }
 
-    pub fn get_snells_law_value(&self) -> f64 {
+    pub fn get_refracted_ray(&self) -> Option<Ray> {
         let n_ratio = self.n1 / self.n2;
         let cos_i = self.eye_vec.dot(&self.normal);
-        n_ratio.powi(2) * (1.0 - cos_i.powi(2))
+        let sin2_t = n_ratio.powi(2) * (1.0 - cos_i.powi(2));
+        // total internal refraction aka Snell's Law
+        if sin2_t > 1.0 {
+            return None;
+        }
+        let cos_t = (1.0 - sin2_t).sqrt();
+        let direction = self.normal * (n_ratio * cos_i - cos_t) - self.eye_vec * n_ratio;
+        Some(Ray::new(&self.under_point, &direction))
     }
 }
 

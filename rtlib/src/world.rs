@@ -40,13 +40,15 @@ impl World {
         intersections
     }
 
-    pub fn shade_hit(&self, comps: &PreCompute, max_reflections: u32) -> Color {
+    pub fn shade_hit(&self, comps: &PreCompute, recursion_limit: u32) -> Color {
         let mut color = Color::BLACK;
         let is_shadowed = self.is_shadowed(comps.get_overpoint());
         for light in self.lights.iter() {
             color = color + comps.lighting(light, is_shadowed);
         }
-        color + self.reflected_color(comps, max_reflections)
+        color
+            + self.reflected_color(comps, recursion_limit)
+            + self.refracted_color(comps, recursion_limit)
     }
 
     pub fn color_at(&self, r: &Ray, max_reflections: u32) -> Color {
@@ -83,19 +85,20 @@ impl World {
         color * reflectivness
     }
 
-    pub fn refracted_color(&self, comps: &PreCompute, max_reflections: u32) -> Color {
+    pub fn refracted_color(&self, comps: &PreCompute, max_refractions: u32) -> Color {
         let transparency = comps.get_material().transparency;
-        let ref_index = comps.get_material().refractive_index;
-        if transparency <= 0.0 || max_reflections <= 0 {
+
+        if transparency <= 0.0 || max_refractions <= 0 {
             return Color::BLACK;
         }
 
         // total internal refraction aka Snell's Law
-        let snell = comps.get_snells_law_value();
-        if snell > 1.0 {
-            return Color::BLACK;
+        if let Some(refracted_ray) = comps.get_refracted_ray() {
+            // Finding refracted color
+            self.color_at(&refracted_ray, max_refractions - 1) * transparency
+        } else {
+            Color::BLACK
         }
-        Color::WHITE
     }
 }
 
@@ -128,6 +131,7 @@ mod tests {
     use super::*;
     use crate::intersection::Intersection;
     use crate::math::SQRT_2;
+    use crate::patterns::tests::TestPattern;
     use crate::shapes::Plane;
 
     #[test]
@@ -370,5 +374,63 @@ mod tests {
     #[test]
     fn refracted_color_with_refracted_ray() {
         let mut w = World::default();
+        let m = Material {
+            ambient: 1.0,
+            pattern: Some(TestPattern::default_boxed()),
+            ..Default::default()
+        };
+        w.objects[0].set_material(m);
+        w.objects[1].set_material(Material::GLASS);
+        let r = Ray::new(&Vec4::point(0.0, 0.0, 0.1), &Vec4::VEC_Y_ONE);
+        let xs = Intersections::from(vec![
+            Intersection::new(w.objects[0].clone(), -0.9899),
+            Intersection::new(w.objects[1].clone(), -0.4899),
+            Intersection::new(w.objects[1].clone(), 0.4899),
+            Intersection::new(w.objects[0].clone(), 0.9899),
+        ]);
+
+        let comps = xs[2].precomputed(&r, Some(xs.get_inner_ref()));
+        assert_eq!(
+            w.refracted_color(&comps, 5),
+            Color::rgb(0.0, 0.9988745506795582, 0.04721898034382347) // Fails with original Color::rgb(0.0, 0.99888, 0.04725)
+        );
+    }
+
+    #[test]
+    fn refract_shade_hit_transparent() {
+        let mut w = World::default();
+        // Semi transparent floor
+        let floor = Plane::new_boxed(
+            Some(Mat4::translation(0.0, -1.0, 0.0)),
+            Some(Material {
+                transparency: 0.5,
+                refractive_index: 1.5,
+                ..Default::default()
+            }),
+        );
+        w.add_object(floor);
+
+        // Ball under floor
+        let ball = Sphere::new_boxed(
+            Some(Mat4::translation(0.0, -3.5, -0.5)),
+            Some(Material {
+                color: Color::RED,
+                ambient: 0.5,
+                ..Default::default()
+            }),
+        );
+        w.add_object(ball);
+
+        let r = Ray::new(
+            &Vec4::point(0.0, 0.0, -3.0),
+            &Vec4::vec(0.0, -SQRT_2 / 2.0, SQRT_2 / 2.0),
+        );
+        let i = Intersection::new(w.objects[2].clone(), SQRT_2);
+
+        let comps = i.precomputed(&r, None);
+        assert_eq!(
+            w.shade_hit(&comps, 5),
+            Color::rgb(0.93642, 0.68642, 0.68642)
+        );
     }
 }

@@ -52,7 +52,7 @@ impl PartialEq for BoxPattern {
 }
 
 #[cfg(test)]
-mod tests {
+pub mod tests {
     use super::*;
     use crate::material::Material;
     use crate::shapes;
