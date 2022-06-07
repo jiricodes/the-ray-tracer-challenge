@@ -25,7 +25,7 @@ impl Material {
         specular: 0.9,
         shininess: 200.0,
         pattern: None,
-        reflectivness: 0.0,
+        reflectivness: 0.9,
         transparency: 1.0,
         refractive_index: 1.5,
     };
