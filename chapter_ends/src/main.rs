@@ -12,19 +12,19 @@ fn main() {
     let floor = shapes::Plane::new_boxed(None, Some(plane_material.clone()));
 
     // Left Wall
-    plane_material.pattern = Some(patterns::RingPattern::default_boxed());
-    let left_wall = shapes::Plane::new_boxed(
-        Some(
-            Mat4::translation(0.0, 0.0, 5.0)
-                * Mat4::rotation_y(-PI / 4.0)
-                * Mat4::rotation_x(PI / 2.0),
-        ),
-        Some(Material {
-            color: Color::WHITE,
-            reflectivness: 1.0,
-            ..Default::default()
-        }),
-    );
+    // plane_material.pattern = Some(patterns::RingPattern::default_boxed());
+    // let left_wall = shapes::Plane::new_boxed(
+    //     Some(
+    //         Mat4::translation(0.0, 0.0, 5.0)
+    //             * Mat4::rotation_y(-PI / 4.0)
+    //             * Mat4::rotation_x(PI / 2.0),
+    //     ),
+    //     Some(Material {
+    //         color: Color::WHITE,
+    //         reflectivness: 1.0,
+    //         ..Default::default()
+    //     }),
+    // );
 
     // // Right wall
     // plane_material.pattern = Some(patterns::StripePattern::default_boxed());
@@ -47,13 +47,13 @@ fn main() {
     let large_sphere = shapes::Sphere::new_boxed(Some(transform), Some(material));
 
     // // medium sphere
-    // let transform = Mat4::translation(1.5, 0.5, -0.5) * Mat4::scaling(0.5, 0.5, 0.5);
-    // let mut material = Material::default();
-    // material.color = Color::rgb(0.5, 1.0, 0.1);
-    // material.diffuse = 0.4;
-    // material.shininess = 50.0;
+    let transform = Mat4::scaling(2000.0, 2000.0, 2000.0);
+    let mut material = Material::default();
+    material.color = Color::rgb(26.0 / 255.0, 141.0 / 255.0, 253.0 / 255.0);
+    material.diffuse = 0.4;
+    material.shininess = 50.0;
     // material.reflectivness = 1.0;
-    // let medium_sphere = shapes::Sphere::new_boxed(Some(transform), Some(material));
+    let medium_sphere = shapes::Sphere::new_boxed(Some(transform), Some(material));
 
     // // small sphere
     // let transform = Mat4::translation(-1.5, 0.33, -0.75) * Mat4::scaling(0.33, 0.33, 0.33);
@@ -82,10 +82,10 @@ fn main() {
     // world
     let mut w = World::new();
     w.add_object(floor);
-    w.add_object(left_wall);
+    // w.add_object(left_wall);
     // w.add_object(right_wall);
     w.add_object(large_sphere);
-    // w.add_object(medium_sphere);
+    w.add_object(medium_sphere);
     // w.add_object(small_sphere);
     // w.add_object(shadow_sphere);
     w.add_light(light);
