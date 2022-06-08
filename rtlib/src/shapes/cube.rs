@@ -247,7 +247,7 @@ mod tests {
         ];
 
         for (p, e) in izip!(&points, &exp) {
-            assert_eq!(c.local_normal_at(*p), *e, "Failed for {:?}", p);
+            assert_eq!(c.normal_at(*p), *e, "Failed for {:?}", p);
         }
     }
 
