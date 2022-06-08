@@ -66,10 +66,10 @@ impl Vec4 {
         self / m
     }
 
-    fn abs(&self) -> Self {
+    pub fn abs(&self) -> Self {
         Self {
             x: self.x.abs(),
-            y: self.x.abs(),
+            y: self.y.abs(),
             z: self.z.abs(),
             w: self.w.abs(),
         }
