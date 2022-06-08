@@ -59,8 +59,17 @@ impl Shape for Cube {
     }
 
     fn local_normal_at(&self, local_point: Vec4) -> Vec4 {
-        todo!()
+        let abs_vec = local_point.abs();
+        let max_c = abs_vec.x.max(abs_vec.y.max(abs_vec.z));
+        if max_c == local_point.x.abs() {
+            Vec4::vec(local_point.x, 0.0, 0.0)
+        } else if max_c == local_point.y.abs() {
+            Vec4::vec(0.0, local_point.y, 0.0)
+        } else {
+            Vec4::vec(0.0, 0.0, local_point.z)
+        }
     }
+
     fn local_intersect(&self, local_ray: Ray) -> Intersections {
         let (mut tmin, mut tmax) = Self::check_axis(local_ray.origin.x, local_ray.direction.x);
         let (cmin, cmax) = Self::check_axis(local_ray.origin.y, local_ray.direction.y);
@@ -184,31 +193,27 @@ mod tests {
 
     #[test]
     fn ray_miss() {
-        panic!("not done")
         let c = Cube::default();
 
         let ray_origins = vec![
             Vec4::point(-2.0, 0.0, 0.0),
             Vec4::point(0.0, -2.0, 0.0),
             Vec4::point(0.0, 0.0, -2.0),
-            Vec4::point(0.5, 5.0, 0.0),
-            Vec4::point(0.5, -5.0, 0.0),
-            Vec4::point(0.5, 0.0, 5.0),
-            Vec4::point(0.5, 0.0, -5.0),
-            Vec4::point(0.0, 0.5, 0.0),
+            Vec4::point(2.0, 0.0, 2.0),
+            Vec4::point(0.0, 2.0, 2.0),
+            Vec4::point(2.0, 2.0, 0.0),
         ];
 
         let ray_directions = vec![
-            -Vec4::VEC_X_ONE,
-            Vec4::VEC_X_ONE,
-            -Vec4::VEC_Y_ONE,
-            Vec4::VEC_Y_ONE,
+            Vec4::vec(0.2673, 0.5345, 0.8018),
+            Vec4::vec(0.8018, 0.2673, 0.5345),
+            Vec4::vec(0.5345, 0.8018, 0.2673),
             -Vec4::VEC_Z_ONE,
-            Vec4::VEC_Z_ONE,
-            Vec4::VEC_Z_ONE,
+            -Vec4::VEC_Y_ONE,
+            -Vec4::VEC_X_ONE,
         ];
 
-        for (org, dir, t1, t2) in izip!(&ray_origins, &ray_directions, &exp_t1, &exp_t2) {
+        for (org, dir) in izip!(&ray_origins, &ray_directions) {
             let r = Ray::new(org, dir);
             let xs = c.intersect(&r);
             assert_eq!(xs.len(), 0);
@@ -216,10 +221,35 @@ mod tests {
     }
 
     #[test]
-    fn transform() {}
+    fn normal_at_surface() {
+        let c = Cube::default();
 
-    #[test]
-    fn normal_at() {}
+        let points = vec![
+            Vec4::point(1.0, 0.5, -0.8),
+            Vec4::point(-1.0, -0.2, 0.9),
+            Vec4::point(-0.4, 1.0, -0.1),
+            Vec4::point(0.3, -1.0, -0.7),
+            Vec4::point(-0.6, 0.3, 1.0),
+            Vec4::point(0.4, 0.4, -1.0),
+            Vec4::point(1.0, 1.0, 1.0),
+            Vec4::point(-1.0, -1.0, -1.0),
+        ];
+
+        let exp = vec![
+            Vec4::VEC_X_ONE,
+            -Vec4::VEC_X_ONE,
+            Vec4::VEC_Y_ONE,
+            -Vec4::VEC_Y_ONE,
+            Vec4::VEC_Z_ONE,
+            -Vec4::VEC_Z_ONE,
+            Vec4::VEC_X_ONE,
+            -Vec4::VEC_X_ONE,
+        ];
+
+        for (p, e) in izip!(&points, &exp) {
+            assert_eq!(c.local_normal_at(*p), *e, "Failed for {:?}", p);
+        }
+    }
 
     #[test]
     fn normal_at_scaled_rotated() {}
