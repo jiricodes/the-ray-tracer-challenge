@@ -45,6 +45,13 @@ impl Vec4 {
         w: 0.0,
     };
 
+    pub const VEC_ONE: Self = Self {
+        x: 1.0,
+        y: 1.0,
+        z: 1.0,
+        w: 0.0,
+    };
+
     pub fn new(x: f64, y: f64, z: f64, w: f64) -> Self {
         Self { x, y, z, w }
     }
