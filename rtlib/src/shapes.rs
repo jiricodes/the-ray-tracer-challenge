@@ -7,6 +7,9 @@ pub use plane::Plane;
 pub mod cube;
 pub use cube::Cube;
 
+pub mod cylinder;
+pub use cylinder::Cylinder;
+
 use crate::intersection::Intersections;
 use crate::material::Material;
 use crate::math::matrix::Mat4;
