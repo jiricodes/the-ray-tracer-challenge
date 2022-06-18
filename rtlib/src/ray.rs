@@ -23,6 +23,15 @@ impl Ray {
         let direction = m * self.direction;
         Self { origin, direction }
     }
+
+    /// A helper function to reduce duplication
+    /// Checks to see if the intersection at `t` is within
+    /// a radius of 1.0 from the y axis
+    pub fn util_intersection_t_within_rad_1(&self, t: f64) -> bool {
+        let x = self.origin.x + t * self.direction.x;
+        let z = self.origin.z + t * self.direction.z;
+        x.powi(2) + z.powi(2) <= 1.0
+    }
 }
 
 #[cfg(test)]
