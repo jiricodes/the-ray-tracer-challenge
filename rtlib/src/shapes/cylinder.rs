@@ -17,6 +17,7 @@ pub struct Cylinder {
     pub inverse_transform: Mat4,
     pub material: Material,
     pub limit_y: (f64, f64),
+    pub closed: bool,
 }
 
 impl PartialEq for Cylinder {
@@ -60,12 +61,20 @@ impl Shape for Cylinder {
     }
 
     fn local_normal_at(&self, local_point: Vec4) -> Vec4 {
-        Vec4::vec(local_point.x, 0.0, local_point.z)
+        let dist = local_point.x.powi(2) + local_point.z.powi(2);
+        if dist < 1.0 && local_point.y >= self.limit_y.1 - EPSILON {
+            Vec4::VEC_Y_ONE
+        } else if dist < 1.0 && local_point.y <= self.limit_y.0 + EPSILON {
+            -Vec4::VEC_Y_ONE
+        } else {
+            Vec4::vec(local_point.x, 0.0, local_point.z)
+        }
     }
     fn local_intersect(&self, local_ray: Ray) -> Intersections {
         let mut ret = Intersections::new();
         let a = local_ray.direction.x.powi(2) + local_ray.direction.z.powi(2);
         if a.abs() < EPSILON {
+            self.intersect_caps(local_ray, &mut ret);
             return ret;
         }
         let b = 2.0 * local_ray.origin.x * local_ray.direction.x
@@ -92,6 +101,8 @@ impl Shape for Cylinder {
             ret.push(Intersection::new(self.box_clone(), t1));
         }
 
+        // note: we could check if ret.len() < 2 and only then call intersect_caps
+        self.intersect_caps(local_ray, &mut ret);
         ret
     }
 }
@@ -101,6 +112,7 @@ impl Cylinder {
         transform: Option<Mat4>,
         material: Option<Material>,
         limit_y: Option<(f64, f64)>,
+        closed: bool,
     ) -> Self {
         let transform = transform.unwrap_or_default();
         let inverse_transform = transform.inverse().unwrap();
@@ -111,6 +123,7 @@ impl Cylinder {
             material: material.unwrap_or_default(),
             inverse_transform,
             limit_y,
+            closed,
         }
     }
 
@@ -118,12 +131,31 @@ impl Cylinder {
         transform: Option<Mat4>,
         material: Option<Material>,
         limit_y: Option<(f64, f64)>,
+        closed: bool,
     ) -> BoxShape {
-        Box::new(Self::new(transform, material, limit_y))
+        Box::new(Self::new(transform, material, limit_y, closed))
     }
 
     pub fn default_boxed() -> BoxShape {
         Box::new(Self::default())
+    }
+
+    fn intersect_caps(&self, ray: Ray, xs: &mut Intersections) {
+        if !self.closed {
+            return;
+        }
+
+        // Lower cap
+        let t = (self.limit_y.0 - ray.origin.y) / ray.direction.y;
+        if ray.util_intersection_t_within_rad_1(t) {
+            xs.push(Intersection::new(self.box_clone(), t))
+        }
+
+        // Upper cap
+        let t = (self.limit_y.1 - ray.origin.y) / ray.direction.y;
+        if ray.util_intersection_t_within_rad_1(t) {
+            xs.push(Intersection::new(self.box_clone(), t))
+        }
     }
 }
 
@@ -135,6 +167,7 @@ impl Default for Cylinder {
             inverse_transform: Mat4::default(),
             material: Material::default(),
             limit_y: (-f64::INFINITY, f64::INFINITY),
+            closed: false,
         }
     }
 }
@@ -156,6 +189,7 @@ mod tests {
         assert!(c1.limit_y.0.is_infinite());
         assert!(c1.limit_y.0 < 0.0);
         assert!(c1.limit_y.1.is_infinite());
+        assert_eq!(c1.closed, false);
     }
 
     #[test]
@@ -241,6 +275,68 @@ mod tests {
             Vec4::VEC_Z_ONE,
         ];
         let cnts = [0, 0, 0, 0, 0, 2];
+
+        for (p, d, cnt) in izip!(&orgs, &dirs, &cnts) {
+            let r = Ray::new(p, &d.normalize());
+            let xs = c.local_intersect(r);
+            assert_eq!(xs.len(), *cnt);
+        }
+    }
+
+    #[test]
+    fn closed_raycast() {
+        let mut c = Cylinder::default();
+        c.limit_y = (1.0, 2.0);
+        c.closed = true;
+
+        // tests
+        let orgs = [
+            Vec4::point(0.0, 3.0, 0.0),
+            Vec4::point(0.0, 3.0, -2.0),
+            Vec4::point(0.0, 4.0, -2.0),
+            Vec4::point(0.0, 0.0, -2.0),
+            Vec4::point(0.0, -1.0, -2.0),
+        ];
+        let dirs = [
+            -Vec4::VEC_Y_ONE,
+            Vec4::vec(0.0, -1.0, 2.0),
+            Vec4::vec(0.0, -1.0, 1.0),
+            Vec4::vec(0.0, 1.0, 2.0),
+            Vec4::vec(0.0, 1.0, 1.0),
+        ];
+        let cnts = [2, 2, 2, 2, 2];
+
+        for (p, d, cnt) in izip!(&orgs, &dirs, &cnts) {
+            let r = Ray::new(p, &d.normalize());
+            let xs = c.local_intersect(r);
+            assert_eq!(xs.len(), *cnt);
+        }
+    }
+
+    #[test]
+    fn closed_normal() {
+        let mut c = Cylinder::default();
+        c.limit_y = (1.0, 2.0);
+        c.closed = true;
+
+        // tests
+        let orgs = [
+            Vec4::point(0.0, 1.0, 0.0),
+            Vec4::point(0.5, 1.0, 0.0),
+            Vec4::point(0.0, 1.0, 0.5),
+            Vec4::point(0.0, 2.0, 0.0),
+            Vec4::point(0.5, 2.0, 0.0),
+            Vec4::point(0.0, 2.0, 0.5),
+        ];
+        let dirs = [
+            -Vec4::VEC_Y_ONE,
+            -Vec4::VEC_Y_ONE,
+            -Vec4::VEC_Y_ONE,
+            Vec4::VEC_Y_ONE,
+            Vec4::VEC_Y_ONE,
+            Vec4::VEC_Y_ONE,
+        ];
+        let cnts = [2, 2, 2, 2, 2];
 
         for (p, d, cnt) in izip!(&orgs, &dirs, &cnts) {
             let r = Ray::new(p, &d.normalize());
