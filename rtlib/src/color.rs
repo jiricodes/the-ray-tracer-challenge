@@ -42,6 +42,14 @@ impl Color {
         Self { r, g, b }
     }
 
+    pub fn rgb8(r: u8, g: u8, b: u8) -> Self {
+        Self {
+            r: r as f64 / 255.0,
+            g: g as f64 / 255.0,
+            b: b as f64 / 255.0,
+        }
+    }
+
     pub fn hadamard_product(&self, other: &Color) -> Self {
         Self {
             r: self.r * other.r,
