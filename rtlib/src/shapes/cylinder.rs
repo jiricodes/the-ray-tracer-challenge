@@ -16,6 +16,7 @@ pub struct Cylinder {
     pub transform: Mat4,
     pub inverse_transform: Mat4,
     pub material: Material,
+    pub limit_y: (f64, f64),
 }
 
 impl PartialEq for Cylinder {
@@ -75,32 +76,50 @@ impl Shape for Cylinder {
         if discriminant < 0.0 {
             return ret;
         }
-        ret.push(Intersection::new(
-            self.box_clone(),
-            (-b - discriminant.sqrt()) / (2.0 * a),
-        ));
-        ret.push(Intersection::new(
-            self.box_clone(),
-            (-b + discriminant.sqrt()) / (2.0 * a),
-        ));
+
+        let t0 = (-b - discriminant.sqrt()) / (2.0 * a);
+        let t1 = (-b + discriminant.sqrt()) / (2.0 * a);
+
+        let (t0, t1) = if t0 > t1 { (t1, t0) } else { (t0, t1) };
+
+        let y = local_ray.origin.y + t0 * local_ray.direction.y;
+        if y > self.limit_y.0 && y < self.limit_y.1 {
+            ret.push(Intersection::new(self.box_clone(), t0));
+        }
+
+        let y = local_ray.origin.y + t1 * local_ray.direction.y;
+        if y > self.limit_y.0 && y < self.limit_y.1 {
+            ret.push(Intersection::new(self.box_clone(), t1));
+        }
+
         ret
     }
 }
 
 impl Cylinder {
-    pub fn new(transform: Option<Mat4>, material: Option<Material>) -> Self {
+    pub fn new(
+        transform: Option<Mat4>,
+        material: Option<Material>,
+        limit_y: Option<(f64, f64)>,
+    ) -> Self {
         let transform = transform.unwrap_or_default();
         let inverse_transform = transform.inverse().unwrap();
+        let limit_y = limit_y.unwrap_or_else(|| (-f64::INFINITY, f64::INFINITY));
         Self {
             uid: uid::fetch_uid(),
             transform,
             material: material.unwrap_or_default(),
             inverse_transform,
+            limit_y,
         }
     }
 
-    pub fn new_boxed(transform: Option<Mat4>, material: Option<Material>) -> BoxShape {
-        Box::new(Self::new(transform, material))
+    pub fn new_boxed(
+        transform: Option<Mat4>,
+        material: Option<Material>,
+        limit_y: Option<(f64, f64)>,
+    ) -> BoxShape {
+        Box::new(Self::new(transform, material, limit_y))
     }
 
     pub fn default_boxed() -> BoxShape {
@@ -115,6 +134,7 @@ impl Default for Cylinder {
             transform: Mat4::default(),
             inverse_transform: Mat4::default(),
             material: Material::default(),
+            limit_y: (-f64::INFINITY, f64::INFINITY),
         }
     }
 }
@@ -133,10 +153,13 @@ mod tests {
         assert_eq!(c1.transform, Mat4::IDENTITY);
         assert_eq!(c1.material, Material::default());
         assert_eq!(c1.material.ambient, 0.1);
+        assert!(c1.limit_y.0.is_infinite());
+        assert!(c1.limit_y.0 < 0.0);
+        assert!(c1.limit_y.1.is_infinite());
     }
 
     #[test]
-    fn ray_miss() {
+    fn infinite_ray_miss() {
         let c = Cylinder::default();
         let dirs = [Vec4::VEC_Y_ONE, Vec4::VEC_Y_ONE, Vec4::VEC_ONE];
         let orgs = [
@@ -152,7 +175,7 @@ mod tests {
     }
 
     #[test]
-    fn ray_intersect() {
+    fn infinite_ray_intersect() {
         let c = Cylinder::default();
         let dirs = [Vec4::VEC_Z_ONE, Vec4::VEC_Z_ONE, Vec4::vec(0.1, 1.0, 1.0)];
         let orgs = [
@@ -175,7 +198,7 @@ mod tests {
     }
 
     #[test]
-    fn normal_at() {
+    fn infinite_normal_at() {
         let c = Cylinder::default();
         let points = [
             Vec4::point(1.0, 0.0, 0.0),
@@ -192,6 +215,37 @@ mod tests {
         for (p, exp) in izip!(&points, &exps) {
             let n = c.local_normal_at(*p);
             assert_eq!(n, *exp);
+        }
+    }
+
+    #[test]
+    fn trunc_raycast() {
+        let mut c = Cylinder::default();
+        c.limit_y = (1.0, 2.0);
+
+        // tests
+        let orgs = [
+            Vec4::point(0.0, 1.5, 0.0),
+            Vec4::point(0.0, 3.0, -5.0),
+            Vec4::point(0.0, 0.0, -5.0),
+            Vec4::point(0.0, 2.0, -5.0),
+            Vec4::point(0.0, 1.0, -5.0),
+            Vec4::point(0.0, 1.5, -2.0),
+        ];
+        let dirs = [
+            Vec4::vec(0.1, 1.0, 0.0),
+            Vec4::VEC_Z_ONE,
+            Vec4::VEC_Z_ONE,
+            Vec4::VEC_Z_ONE,
+            Vec4::VEC_Z_ONE,
+            Vec4::VEC_Z_ONE,
+        ];
+        let cnts = [0, 0, 0, 0, 0, 2];
+
+        for (p, d, cnt) in izip!(&orgs, &dirs, &cnts) {
+            let r = Ray::new(p, &d.normalize());
+            let xs = c.local_intersect(r);
+            assert_eq!(xs.len(), *cnt);
         }
     }
 }
