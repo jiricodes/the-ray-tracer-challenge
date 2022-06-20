@@ -147,13 +147,13 @@ impl Cylinder {
 
         // Lower cap
         let t = (self.limit_y.0 - ray.origin.y) / ray.direction.y;
-        if ray.util_intersection_t_within_rad_1(t) {
+        if ray.util_intersection_t_within_radius(t, 1.0) {
             xs.push(Intersection::new(self.box_clone(), t))
         }
 
         // Upper cap
         let t = (self.limit_y.1 - ray.origin.y) / ray.direction.y;
-        if ray.util_intersection_t_within_rad_1(t) {
+        if ray.util_intersection_t_within_radius(t, 1.0) {
             xs.push(Intersection::new(self.box_clone(), t))
         }
     }
