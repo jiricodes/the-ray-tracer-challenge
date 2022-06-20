@@ -61,15 +61,19 @@ impl Shape for Cone {
     }
 
     fn local_normal_at(&self, local_point: Vec4) -> Vec4 {
-        let dist = local_point.x.powi(2) + local_point.z.powi(2);
-        if dist < 1.0 && local_point.y >= self.limit_y.1 - EPSILON {
+        let mut y = (local_point.x.powi(2) + local_point.z.powi(2)).sqrt();
+        if y < self.limit_y.1.abs() && local_point.y >= self.limit_y.1 - EPSILON {
             Vec4::VEC_Y_ONE
-        } else if dist < 1.0 && local_point.y <= self.limit_y.0 + EPSILON {
+        } else if y < self.limit_y.0.abs() && local_point.y <= self.limit_y.0 + EPSILON {
             -Vec4::VEC_Y_ONE
         } else {
-            Vec4::vec(local_point.x, 0.0, local_point.z)
+            if local_point.y > 0.0 {
+                y = -y;
+            }
+            Vec4::vec(local_point.x, y, local_point.z)
         }
     }
+
     fn local_intersect(&self, local_ray: Ray) -> Intersections {
         let mut ret = Intersections::new();
 
@@ -261,5 +265,33 @@ mod tests {
             let xs = cone.local_intersect(r);
             assert_eq!(xs.len(), *elen);
         }
+    }
+
+    #[test]
+    fn normal_at() {
+        let cone = Cone::default();
+        let points = [
+            Vec4::POINT_ZERO,
+            Vec4::point(1.0, 1.0, 1.0),
+            Vec4::point(-1.0, -1.0, 0.0),
+        ];
+        let expected_normals = [
+            Vec4::vec(0.0, 0.0, 0.0),
+            Vec4::vec(1.0, -SQRT_2, 1.0),
+            Vec4::vec(-1.0, 1.0, 0.0),
+        ];
+        for (p, en) in izip!(&points, &expected_normals) {
+            let n = cone.local_normal_at(*p);
+            assert_eq!(n, *en);
+        }
+    }
+
+    #[test]
+    fn normal_at_distant_cap() {
+        let mut cone = Cone::default();
+        cone.limit_y = (0.0, 2.0);
+        let p = Vec4::point(1.5, 2.0, 0.0);
+        let n = cone.local_normal_at(p);
+        dbg!(n);
     }
 }
