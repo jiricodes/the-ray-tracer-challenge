@@ -30,7 +30,7 @@ impl Ray {
     pub fn util_intersection_t_within_radius(&self, t: f64, r: f64) -> bool {
         let x = self.origin.x + t * self.direction.x;
         let z = self.origin.z + t * self.direction.z;
-        x.powi(2) + z.powi(2) <= r
+        (x.powi(2) + z.powi(2)).sqrt() <= r
     }
 }
 
